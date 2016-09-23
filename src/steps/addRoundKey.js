@@ -1,1 +1,3 @@
-export default (left, right) => right.map( (b, i) => left[i] ^ b)
+import { xor } from '../utils'
+
+export default xor

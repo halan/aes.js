@@ -3,3 +3,5 @@ export const compose = (fn, ...rest) =>
 
 export const isFirst = (arr, item) => arr.indexOf(item) === 0
 export const isLast = (arr, item) => arr.indexOf(item) === arr.length-1
+
+export const xor = (left, right) => right.map( (b, i) => left[i] ^ b)
