@@ -1,5 +1,5 @@
 import subBytes from './steps/subBytes'
-import { xor } from './utils'
+import { xor, group } from './utils'
 
 const rcon = [0x8d,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36,0x6c,0xd8,0xab,0x4d,0x9a]
 
@@ -15,10 +15,6 @@ const xorRcon = (word, i) => [ rcon[i] ^ word[0], ...word.slice(1) ]
 const keySchedule = (word, i) => xorRcon(subWord(rotWord(word)), i)
 
 const lastWords = (word, behind) => word.slice(-behind*WORD_SIZE).slice(0, WORD_SIZE)
-
-const group = (arr, size) =>
-  arr.reduce((a,b,i,g) =>
-    !(i % size) ? (a.push(g.slice(i, i + size)), a) : a, [])
 
 // # IMPROVEME
 // 
