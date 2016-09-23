@@ -1,3 +1,8 @@
+# Warning
+
+This code is not recommended for use in production!
+It was not written to be efficient or safe, only readable and descriptive for didatic purposes.
+
 # References (AES)
 
 - http://www.movable-type.co.uk/scripts/aes.html
