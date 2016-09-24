@@ -16,7 +16,9 @@ const reducer = ({ keys, buffer }, key) => {
 const AES = (buffer, key) => {
   const keys = expandKey(key)
 
-  return keys.reduce(reducer, { keys, buffer }).buffer
+  return new Uint8Array(
+    keys.reduce(reducer, { keys, buffer }).buffer
+  )
 }
 
 export default AES
