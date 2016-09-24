@@ -76,40 +76,6 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
       "type": "file",
       "data": {
         "language": {
-          "nameMatchers": [".md", ".markdown", ".mkd", ".mkdn", ".mdown"],
-          "commentsOnly": true,
-          "name": "Markdown"
-        },
-        "sourcePath": "/home/halan/Code/aes-es6/README.md",
-        "projectPath": "README.md",
-        "targetPath": "index",
-        "pageTitle": "index",
-        "title": "index"
-      },
-      "depth": 1,
-      "outline": [
-        {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Importando os módulos",
-            "slug": "importando-os-mdulos"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Encriptando",
-            "slug": "encriptando"
-          },
-          "depth": 2
-        }
-      ]
-    }, {
-      "type": "file",
-      "data": {
-        "language": {
           "nameMatchers": [".js"],
           "pygmentsLexer": "javascript",
           "multiLineComment": ["/*", "*", "*/"],
