@@ -6,16 +6,13 @@
 import subBytes from './steps/subBytes'
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-import { xor, group } from './utils'
+import { xor, lastWord, splitInWords } from './utils'
 
-// ### Constantes
+// ### Constante Rcon
 
 // Constante rcon pra ser feito xor com o primeiro byte e cada word (1 word são 4 bytes)
 // 1 RCON para cada nova chave criada, ou seja: 10 rcons.
 const RCON = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36]
-
-// Constante pra definir o tamanho em bytes de um word: `4`
-const WORD_SIZE = 4
 
 // ### KeyScheduleCore
 
@@ -39,11 +36,7 @@ const xorFirstByte = ([first, ...rest], value) => [ value ^ first, ...rest ]
 // é aplicada tantas vezes iguais ao número de rodadas, que no noso caso são 11.
 const keyScheduleCore = (word, rcon) => xorFirstByte(subWord(rotWord(word)), rcon)
 
-// Função auxiliar que devolve as últimas words. A ideia aqui é pegar a primeira word da última chave.
-const lastWord = arr => arr.slice(-WORD_SIZE)
-
-// Função auxiliar que divide um array em words, ou seja, divide em grupos de 4 elementos.
-const splitInWords = arr => group(arr, WORD_SIZE)
+// [Mais detalhes...](https://en.wikipedia.org/wiki/Rijndael_key_schedule#Common_operations)
 
 // ### Geração das chaves
 
