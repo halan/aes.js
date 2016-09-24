@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { addRoundKey } from '../src/steps'
+import { addRoundKey } from 'steps'
 
 describe('addRoundKey', () => {
   it('add round key', () => {

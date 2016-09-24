@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { shiftRows } from '../src/steps'
+import { shiftRows } from 'steps'
 
 describe('shiftRows', () => {
   it('shift rows', () => {

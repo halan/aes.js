@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { mixColumns } from '../src/steps'
+import { mixColumns } from 'steps'
 
 describe('mixColumns', () => {
   it('mix columns', () => {

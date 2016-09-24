@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "doc": "groc",
-    "test": "mocha --compilers js:babel-core/register"
+    "test": "NODE_PATH=./src mocha --compilers js:babel-core/register test/*_test.js test/**/*_test.js"
   },
   "author": "",
   "license": "ISC",

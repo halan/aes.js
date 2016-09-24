@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import AES from '../src/'
+import AES from 'index'
 
 describe('AES', () => {
   it('basic encrypt', () => {

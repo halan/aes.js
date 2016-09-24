@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { subBytes } from '../src/steps'
+import { subBytes } from 'steps'
 
 describe('subBytes', () => {
   it('sub bytes', () => {

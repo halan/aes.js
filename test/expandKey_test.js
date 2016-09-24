@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import expandKey from '../src/expandKey'
+import expandKey from 'expandKey'
 
 describe('expandKey', () => {
   it('expand key', () => {
