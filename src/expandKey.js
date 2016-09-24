@@ -64,8 +64,8 @@ const generate = (key, rcon) => {
     // Em cada iteração ele monta mais uma word da chave
     // A primeira word é um xor com a primeira word da chave anterior e o valor base
     // As words seguintes é um xor com a word correspondente na chave anterior
-    // e a última word calculado da própria chave
-    [...k, ...xor(word, k.length ? lastWord(k) : base )]
+    // e a última word calculado da própria chave (estou usando `Uint8Array` pra armazenar os valores)
+    new Uint8Array([...k, ...xor(word, k.length ? lastWord(k) : base )])
   ), [])
 }
 
@@ -78,5 +78,6 @@ export default key => (
     const current = generate(last, rcon)
 
     return [...keys, current]
-  }, [key] )
+  }, [new Uint8Array(key)] )
+  // A chave original é entregue para o reducer como uma `Uint8Array`
 )
