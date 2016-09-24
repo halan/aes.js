@@ -15,7 +15,7 @@ Esse procedimento é aplicado sempre na primeira word de cada chave, ou seja
 a partir de uma chave anterior e um valor de rcon.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> generate = (key, rcon) =&gt; {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Primeiramente calculo o valor base usando KeyScheduleCore que vai receber a última word da chave.</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> base = keyScheduleCore(lastWord(key), rcon)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>divido a chave em grupos formando 4 words.</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">const</span> words = group(key, WORDS_IN_A_KEY)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Então faço um reduce em cima dessas words, ou seja, um loop de 4 iterações.</p></div></div><div class="code"><div class="wrapper">  <span class="hljs-keyword">return</span> words.reduce( (k, word) =&gt; (</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Em cada iteração ele monta mais uma word da chave
 A primeira word é um xor com a primeira word da chave anterior e o valor base
 As words seguintes é um xor com a word correspondente na chave anterior
-e a última word calculado da própria chave</p></div></div><div class="code"><div class="wrapper">    [...k, ...xor(word, k.length ? lastWord(k) : base )]
+e a última word calculado da própria chave (estou usando <code>Uint8Array</code> pra armazenar os valores)</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>([...k, ...xor(word, k.length ? lastWord(k) : base )])
   ), [])
 }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> key =&gt; (</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Passo um reduce sobre os RCONS, epara cada RCON executo a função de gerar chave
 passando como entrada a última chave e o rcon da rodada</p></div></div><div class="code"><div class="wrapper">  RCON.reduce( (keys, rcon) =&gt; {
@@ -23,5 +23,4 @@ passando como entrada a última chave e o rcon da rodada</p></div></div><div cla
     <span class="hljs-keyword">const</span> current = generate(last, rcon)
 
     <span class="hljs-keyword">return</span> [...keys, current]
-  }, [key] )
-)</div></div></div></div></body></html>
+  }, [<span class="hljs-keyword">new</span> <span class="hljs-built_in">Uint8Array</span>(key)] )</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>A chave original é entregue para o reducer como uma <code>Uint8Array</code></p></div></div><div class="code"><div class="wrapper">)</div></div></div></div></body></html>
