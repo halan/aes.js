@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><title>steps/index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="steps/index"><meta name="groc-project-path" content="src/steps/index.js"><meta name="groc-github-url" content="https://github.com/halan/aes-es6"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/halan/aes-es6/blob/master/src/steps/index.js">src/steps/index.js</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="hljs-keyword">import</span> { compose } <span class="hljs-keyword">from</span> <span class="hljs-string">'../utils'</span>
+
+<span class="hljs-keyword">import</span> subBytes <span class="hljs-keyword">from</span> <span class="hljs-string">'./subBytes'</span>
+<span class="hljs-keyword">import</span> shiftRows <span class="hljs-keyword">from</span> <span class="hljs-string">'./shiftRows'</span>
+<span class="hljs-keyword">import</span> mixColumns <span class="hljs-keyword">from</span> <span class="hljs-string">'./mixColumns'</span>
+<span class="hljs-keyword">import</span> addRoundKey <span class="hljs-keyword">from</span> <span class="hljs-string">'./addRoundKey'</span>
+
+export { subBytes, shiftRows, mixColumns, addRoundKey }
+
+export const firstRound = addRoundKey
+
+export const middleRound = (buffer, key) =&gt;
+  addRoundKey(
+    compose(mixColumns, shiftRows, subBytes)(buffer),
+    key
+  )
+
+export const lastRound = (buffer, key) =&gt;
+  addRoundKey(
+    compose(shiftRows, subBytes)(buffer),
+    key
+  )</div></div></div></div></body></html>
