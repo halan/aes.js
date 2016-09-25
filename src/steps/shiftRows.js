@@ -1,3 +1,4 @@
+// O shiftRows apenas embaralha as posições.
 export default b =>
   [ 0,  5, 10, 15,
     4,  9, 14,  3,
