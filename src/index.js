@@ -14,7 +14,8 @@
 // No AES utiliza-se 9 rodadas mais 2.
 // Sendo a primeira apenas um xor com a chave
 // e a última não tem a etapa `mixColumns`.
-import { firstRound, middleRound, lastRound } from './steps'
+import { firstRound, middleRound, lastRound,
+         firstRoundInv, middleRoundInv, lastRoundInv } from './steps'
 
 // `isFirst` e `isLast` recebem um array e um item
 // e respondem a relação desse item com o array.
@@ -27,7 +28,7 @@ import { isFirst, isLast } from './utils'
 // as 11 chaves necessárias para as 11 rodadas da encriptação.
 import expandKey from './expandKey'
 
-// ### Definindo o loop principal (`reducer`)
+// ### Encriptando
 
 // Este reducer aplica as etapas corretas, a primeira, as normais e a última.
 const reducer = ({ keys, buffer }, key) => {
@@ -40,8 +41,7 @@ const reducer = ({ keys, buffer }, key) => {
   return { keys, buffer: middleRound(buffer, key) }
 }
 
-// ### Encriptando
-const AES = (buffer, key) => {
+export const encrypt = (buffer, key) => {
   // Pego a chave original e expando para 11 chaves.
   const keys = expandKey(key)
 
@@ -54,4 +54,28 @@ const AES = (buffer, key) => {
   )
 }
 
-export default AES
+// ### Decriptando
+
+// Algoritmo inverso análogo ao reducer de encriptação,
+// porém utilizando os rounds invertidos.
+// A chave expandida aqui também deve ser enviada invertida em sua ordem para que funcione.
+const reducerInv = ({ keys, buffer }, key) => {
+  if( isFirst(keys, key) )
+    return { keys, buffer: firstRoundInv(buffer, key) }
+
+  else if( isLast(keys, key) )
+    return { keys, buffer: lastRoundInv(buffer, key) }
+
+  return { keys, buffer: middleRoundInv(buffer, key) }
+}
+
+export const decrypt = (buffer, key) => {
+  // A chave expandida é a mesma, porém com a ordem inversa,
+  // a última chava passa a ser a primeira e a primeira passa a ser a última
+  const keys = expandKey(key).reverse()
+
+  // Mesmo procedimento de encriptação, porém usando o reducer invertido definido acima
+  return new Uint8Array(
+    keys.reduce(reducerInv, { keys, buffer }).buffer
+  )
+}
