@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { mixColumns } from 'steps'
+import { mixColumns, mixColumnsInv } from 'steps'
 
 describe('mixColumns', () => {
   it('mix columns', () => {
@@ -13,6 +13,20 @@ describe('mixColumns', () => {
         87, 234, 226, 217,
        190, 227, 107, 142,
         45,  49, 193, 142]
+    )
+  })
+
+  it('mix columns inverse', () => {
+    expect(mixColumnsInv(
+      [105, 192, 254,  73,
+        87, 234, 226, 217,
+       190, 227, 107, 142,
+        45,  49, 193, 142]
+    )).to.be.deep.equal(
+      [164,  64,  15, 245,
+        14, 236, 172, 200,
+       114,  72, 204,  78,
+       117, 253,  63, 228]
     )
   })
 })

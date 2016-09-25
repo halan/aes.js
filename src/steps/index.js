@@ -5,12 +5,13 @@
 import { compose } from '../utils'
 
 // São 4 as etapas de encriptação
-import subBytes from './subBytes'
-import shiftRows from './shiftRows'
-import mixColumns from './mixColumns'
+import subBytes, { subBytesInv } from './subBytes'
+import shiftRows, { shiftRowsInv } from './shiftRows'
+import mixColumns, { mixColumnsInv } from './mixColumns'
 import addRoundKey from './addRoundKey'
 
 export { subBytes, shiftRows, mixColumns, addRoundKey }
+export { mixColumnsInv, subBytesInv, shiftRowsInv }
 
 // O primeiro round é utilizado apenas o `addRoundKey`
 export const firstRound = addRoundKey
