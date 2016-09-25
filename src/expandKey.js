@@ -60,13 +60,15 @@ const generate = (key, rcon) => {
 
 // Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!
 export default key => (
-  // Passo um reduce sobre os RCONS, epara cada RCON executo a função de gerar chave
+  // Passo um reduce sobre os RCONS, epara cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada
   RCON.reduce( (keys, rcon) => {
+    // Pega a última chave
     const [last] = [...keys].reverse()
-    const current = generate(last, rcon)
 
-    return [...keys, current]
-  }, [new Uint8Array(key)] )
+    // A cada rodada, gera uma nova chave e adiciona à lista de chaves
+    return [...keys, generate(last, rcon)]
+
   // A chave original é entregue para o reducer como uma `Uint8Array`
+  }, [new Uint8Array(key)] )
 )
