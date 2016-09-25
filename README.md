@@ -1,3 +1,5 @@
+[Código comentado em português...](https://halan.github.io/aes-es6/index.html)
+
 # Warning
 
 This code is not recommended for use in production!
