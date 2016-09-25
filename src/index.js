@@ -30,6 +30,9 @@ import expandKey from './expandKey'
 
 // Esta função recebe uma chave e devolve 3 funções para serem utilizadas na encriptação.
 // O segundo argumento é definido automaticamente com base no primeiro.
+// `expandKey` usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
+// em um array com 11 chaves, sendo a primeira a chave original, e as demais são cálculos
+// a partir da primeira. [Essa parte do código também está totalmente comentada](expandKey.html)
 const encryptRounds = (key, keys = expandKey(key)) =>
   [
     // O último round é servido primeiro, ele recebe a última chave.
