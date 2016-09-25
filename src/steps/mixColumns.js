@@ -2,8 +2,12 @@
 //
 // Na etapa de MixColumns, os quatro bytes de cada coluna do estado
 // são combinados usando uma transformação linear invertível.
-// ([fonte](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Etapa_de_MixColumns))
+// ([fonte](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Etapa_de_MixColumns)).
 
+// Tabelas pré-calculadas de multiplicação de Galois.
+// Mais detalhes e o próprio cálculo pode ser encontrado [aqui](https://en.wikipedia.org/wiki/Rijndael_mix_columns)
+// G2 e G3 é utilizado na difusão das colunas para *encriptação*. G9, G11, G13 e G4 são utilizadasna *decriptação*.
+// Essas tabelas possuem 16*16, ou seja, 256 valores, um para cada byte possível.
 const G2 =
   [0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,
    0x20,0x22,0x24,0x26,0x28,0x2a,0x2c,0x2e,0x30,0x32,0x34,0x36,0x38,0x3a,0x3c,0x3e,
@@ -112,7 +116,7 @@ const G14 =
    0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
    0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d]
 
-
+// Calculo de difusão de coluna.
 const mixCol = (a0, a1, a2, a3) => ([
   G2[a0] ^ G3[a1] ^     a2 ^ a3,
       a0 ^ G2[a1] ^ G3[a2] ^ a3,
@@ -120,13 +124,7 @@ const mixCol = (a0, a1, a2, a3) => ([
   G3[a0] ^     a1 ^     a2 ^ G2[a3]
 ])
 
-const mixColInv = (a0, a1, a2, a3) => ([
-  G14[a0] ^ G9[a3] ^ G13[a2] ^ G11[a1],
-  G14[a1] ^ G9[a0] ^ G13[a3] ^ G11[a2],
-  G14[a2] ^ G9[a1] ^ G13[a0] ^ G11[a3],
-  G14[a3] ^ G9[a2] ^ G13[a1] ^ G11[a0]
-])
-
+// Montagem das colunas difusas.
 export default buffer => ([
   ...mixCol(...buffer.slice(0, 4)),
   ...mixCol(...buffer.slice(4, 8)),
@@ -134,6 +132,15 @@ export default buffer => ([
   ...mixCol(...buffer.slice(12, 16)),
 ])
 
+// Cálculo inverso da difusão de colunas.
+const mixColInv = (a0, a1, a2, a3) => ([
+  G14[a0] ^ G9[a3] ^ G13[a2] ^ G11[a1],
+  G14[a1] ^ G9[a0] ^ G13[a3] ^ G11[a2],
+  G14[a2] ^ G9[a1] ^ G13[a0] ^ G11[a3],
+  G14[a3] ^ G9[a2] ^ G13[a1] ^ G11[a0]
+])
+
+// Montagem das colunas com a difusão *desfeita*.
 export const mixColumnsInv = buffer => ([
   ...mixColInv(...buffer.slice(0, 4)),
   ...mixColInv(...buffer.slice(4, 8)),

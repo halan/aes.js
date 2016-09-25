@@ -7,6 +7,7 @@ export default b =>
     8, 13,  2,  7,
    12,  1,  6,  11].map( i => b[i] )
 
+// A sua versão invertida apenas desembaralha
 export const shiftRowsInv = b =>
   [ 0, 13, 10,  7,
     4,  1, 14, 11,
