@@ -60,7 +60,7 @@ const generate = (lastKey, rcon) => {
 
 // Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!
 export default key => (
-  // Passo um reduce sobre os RCONS, epara cada RCON executo a função de geração de chave
+  // Passo um reduce sobre os RCONS, e para cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada
   RCON.reduce( (keys, rcon) => {
     // Pega a última chave
