@@ -12,6 +12,10 @@ import { xor, lastWord, splitInWords } from './utils'
 
 // Constante rcon pra ser feito xor com o primeiro byte e cada word (1 word são 4 bytes)
 // 1 rcon para cada nova chave criada, ou seja: 10 rcons.
+// Mais detalhes sobre o cálculo para chegar nessa constante pode ser encontrado
+// [aqui](https://en.wikipedia.org/wiki/Rijndael_key_schedule#Rcon).
+// O rcon[0] não é utilizado no AES, por isso decidi iniciar pelo `0x01` para simplificar o reducer
+// mais pra frente.
 const RCON = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36]
 
 // ### `KeyScheduleCore`
