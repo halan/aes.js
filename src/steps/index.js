@@ -31,3 +31,10 @@ export const lastRound = (buffer, key) =>
     key
   )
 
+export const firstRoundInv = (buffer, key) =>
+  compose(subBytesInv, shiftRowsInv)(addRoundKey(buffer, key))
+
+export const middleRoundInv = (buffer, key) =>
+  compose(subBytesInv, shiftRowsInv, mixColumnsInv)(addRoundKey(buffer, key))
+
+export const lastRoundInv = addRoundKey

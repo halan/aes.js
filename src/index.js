@@ -14,7 +14,8 @@
 // No AES utiliza-se 9 rodadas mais 2.
 // Sendo a primeira apenas um xor com a chave
 // e a última não tem a etapa `mixColumns`.
-import { firstRound, middleRound, lastRound } from './steps'
+import { firstRound, middleRound, lastRound,
+         firstRoundInv, middleRoundInv, lastRoundInv } from './steps'
 
 // `isFirst` e `isLast` recebem um array e um item
 // e respondem a relação desse item com o array.
@@ -40,8 +41,18 @@ const reducer = ({ keys, buffer }, key) => {
   return { keys, buffer: middleRound(buffer, key) }
 }
 
+const reducerInv = ({ keys, buffer }, key) => {
+  if( isFirst(keys, key) )
+    return { keys, buffer: firstRoundInv(buffer, key) }
+
+  else if( isLast(keys, key) )
+    return { keys, buffer: lastRoundInv(buffer, key) }
+
+  return { keys, buffer: middleRoundInv(buffer, key) }
+}
+
 // ### Encriptando
-const AES = (buffer, key) => {
+export const encrypt = (buffer, key) => {
   // Pego a chave original e expando para 11 chaves.
   const keys = expandKey(key)
 
@@ -54,4 +65,10 @@ const AES = (buffer, key) => {
   )
 }
 
-export default AES
+export const decrypt = (buffer, key) => {
+  const keys = expandKey(key).reverse()
+
+  return new Uint8Array(
+    keys.reduce(reducerInv, { keys, buffer }).buffer
+  )
+}
