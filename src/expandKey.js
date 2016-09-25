@@ -42,19 +42,19 @@ const keyScheduleCore = (word, rcon) => xorFirstByte(subWord(rotWord(word)), rco
 
 // Separei nessa função, o procedimento de criar uma chave completa de 128 bits
 // a partir de uma chave anterior e um valor de rcon.
-const generate = (key, rcon) => {
+const generate = (lastKey, rcon) => {
   // Primeiramente calculo o valor base usando KeyScheduleCore que vai receber a última word da chave.
-  const base = keyScheduleCore(lastWord(key), rcon)
+  const base = keyScheduleCore(lastWord(lastKey), rcon)
   // divido a chave em grupos formando 4 words.
-  const words = splitInWords(key)
+  const words = splitInWords(lastKey)
 
   // Então faço um reduce em cima dessas words, ou seja, um loop de 4 iterações.
-  return words.reduce( (k, word) => (
+  return words.reduce( (newKey, word) => (
     // Em cada iteração ele monta mais uma word da chave
     // A primeira word é um xor com a primeira word da chave anterior e o valor base
     // As words seguintes é um xor com a word correspondente na chave anterior
     // e a última word calculado da própria chave (estou usando `Uint8Array` pra armazenar os valores)
-    new Uint8Array([...k, ...xor(word, k.length ? lastWord(k) : base )])
+    new Uint8Array([...newKey, ...xor(word, newKey.length ? lastWord(newKey) : base )])
   ), [])
 }
 
