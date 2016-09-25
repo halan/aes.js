@@ -17,9 +17,7 @@
 import { firstRound, middleRound, lastRound,
          firstRoundInv, middleRoundInv, lastRoundInv } from './steps'
 
-// `isFirst` e `isLast` recebem um array e um item
-// e respondem a relação desse item com o array.
-import { isFirst, isLast } from './utils'
+import { compose } from './utils'
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
@@ -30,52 +28,40 @@ import expandKey from './expandKey'
 
 // ### Encriptando
 
-// Este reducer aplica as etapas corretas, a primeira, as normais e a última.
-const reducer = ({ keys, buffer }, key) => {
-  if( isFirst(keys, key) )
-    return { keys, buffer: firstRound(buffer, key) }
+// Esta função recebe uma chave e devolve 3 funções para serem utilizadas na encriptação.
+// O segundo argumento é definido automaticamente com base no primeiro.
+const encryptRounds = (key, keys = expandKey(key)) =>
+  [
+    // O último round é servido primeiro, ele recebe a última chave.
+    state => lastRound(state, keys[keys.length-1]),
+    // Os rounds do meio passam por um reduce, assim eles rodarão n-2 vezes.
+    // Sendo n a quantidade total de rounds.
+    state => keys.slice(1, -1).reduce(middleRound, state),
+    // O primeiro round recebe a primeira chave e é servido por último.
+    state => firstRound(state, keys[0])
+  ]
 
-  else if( isLast(keys, key) )
-    return { keys, buffer: lastRound(buffer, key) }
-
-  return { keys, buffer: middleRound(buffer, key) }
-}
-
-export const encrypt = (buffer, key) => {
-  // Pego a chave original e expando para 11 chaves.
-  const keys = expandKey(key)
-
-  // A partir das 11 chaves, aplico o reducer para encriptar.
-  // Feito a encriptação, jogo o resultado em um `Uint8Array`.
-  // Estruturas `Uint8Array` são arrays de números de 0 a 255, ou seja, 1 byte, ou seja 1 caractere.
-  // Em um `Uint8Array` se eu pego um valor de 250 e somo 10 o resultado *armazenado* será 4!
-  return new Uint8Array(
-    keys.reduce(reducer, { keys, buffer }).buffer
+// A encriptação é uma composição com a saída de `encryptRounds`.
+// Essa composição recebe o texto plano e serve como `Uint8Array`
+export const encrypt = (plain, key) =>
+  new Uint8Array(
+    compose(...encryptRounds(key))(plain)
   )
-}
 
 // ### Decriptando
 
-// Algoritmo inverso análogo ao reducer de encriptação,
-// porém utilizando os rounds invertidos.
-// A chave expandida aqui também deve ser enviada invertida em sua ordem para que funcione.
-const reducerInv = ({ keys, buffer }, key) => {
-  if( isFirst(keys, key) )
-    return { keys, buffer: firstRoundInv(buffer, key) }
+// Essa função é bem parecida com a `encrypRounds` em sua estrutura.
+// Ela usa as versões inversas dos rounds e as chaves espandidas são servidas de forma reversa.
+const decryptRounds = (key, keys = expandKey(key).reverse()) =>
+  [
+    state => lastRoundInv(state, keys[keys.length-1]),
+    state => keys.slice(1, -1).reduce(middleRoundInv, state),
+    state => firstRoundInv(state, keys[0])
+  ]
 
-  else if( isLast(keys, key) )
-    return { keys, buffer: lastRoundInv(buffer, key) }
-
-  return { keys, buffer: middleRoundInv(buffer, key) }
-}
-
-export const decrypt = (buffer, key) => {
-  // A chave expandida é a mesma, porém com a ordem inversa,
-  // a última chava passa a ser a primeira e a primeira passa a ser a última
-  const keys = expandKey(key).reverse()
-
-  // Mesmo procedimento de encriptação, porém usando o reducer invertido definido acima
-  return new Uint8Array(
-    keys.reduce(reducerInv, { keys, buffer }).buffer
+// O processo de decriptação é idêntico ao de encriptação, porém utilizando o `decryptRounds`
+// para a composição.
+export const decrypt = (cipher, key) =>
+  new Uint8Array(
+    compose(...decryptRounds(key))(cipher)
   )
-}
