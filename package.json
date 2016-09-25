@@ -1,13 +1,13 @@
 {
   "name": "aes-es6",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Small AES encryption for study purpose. Feat. ES6 and Functional Programming. Explanations detaileds in pt-BR: http://halan.github.com/aes-es6",
+  "main": "./src/index.js",
   "scripts": {
     "doc": "groc",
     "test": "NODE_PATH=./src mocha --compilers js:babel-core/register test/*_test.js test/**/*_test.js"
   },
-  "author": "",
+  "author": "Halan Pinheiro",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.14.0",
