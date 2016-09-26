@@ -1,3 +1,13 @@
+// ## Aviso
+
+// Este código não deve e nem tem pretenções de ser utilizado em produção.
+// Deve ser utilizado somente com fins didáticos. O foco é tanto mostrar um algoritmo criptográfico,
+// quanto exemplos de uso de programação funcional e ECMAScript6.
+// Caso esteja interessado em encriptar coisas em produção, utilize a 
+// [API do browser para isso](https://developer.mozilla.org/pt-BR/docs/Web/API/Web_Crypto_API) ou
+// bibliotecas especializadas em criptografia como 
+// por exemplo: [crypto.js](https://github.com/brix/crypto-js).
+
 // ## Resumo
 
 // O objetivo desse arquivo é bem simples.
@@ -7,7 +17,8 @@
 //   - Executar 9 vezes as etapas de embaralhalamento com as respectivas chaves
 //   - Executar a rodada final com a última das 11 chaves
 
-// [Descrição detalhada](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Descri.C3.A7.C3.A3o_de_Cifra)
+// [Descrição um pouco mais detalhada na Wikipedia...](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Descri.C3.A7.C3.A3o_de_Cifra)
+// [Aqui tem uma descrição um pouco melhor, principalmente dos cálculos...](http://pt.stackoverflow.com/a/43665)
 
 // ### Importando os módulos
 
