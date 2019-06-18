@@ -1,5 +1,5 @@
-import { expect } from 'chai'
-import expandKey from 'expandKey'
+const { expect } = require('chai')
+const expandKey = require('expandKey')
 
 describe('expandKey', () => {
   it('expand key', () => {

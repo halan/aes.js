@@ -125,7 +125,7 @@ const mixCol = (a0, a1, a2, a3) => ([
 ])
 
 // Montagem das colunas difusas.
-export default buffer => ([
+const mixColumns = buffer => ([
   ...mixCol(...buffer.slice(0, 4)),
   ...mixCol(...buffer.slice(4, 8)),
   ...mixCol(...buffer.slice(8, 12)),
@@ -141,9 +141,13 @@ const mixColInv = (a0, a1, a2, a3) => ([
 ])
 
 // Montagem das colunas com a difusão *desfeita*.
-export const mixColumnsInv = buffer => ([
+const mixColumnsInv = buffer => ([
   ...mixColInv(...buffer.slice(0, 4)),
   ...mixColInv(...buffer.slice(4, 8)),
   ...mixColInv(...buffer.slice(8, 12)),
   ...mixColInv(...buffer.slice(12, 16)),
 ])
+
+module.exports = {
+  mixColumns, mixColumnsInv
+}

@@ -25,17 +25,18 @@
 // No AES utiliza-se 9 rodadas mais 2.
 // Sendo a primeira apenas um xor com a chave
 // e a última não tem a etapa `mixColumns`.
-import { firstRound, middleRound, lastRound,
-         firstRoundInv, middleRoundInv, lastRoundInv } from './steps'
+const  { firstRound, middleRound, lastRound,
+         firstRoundInv, middleRoundInv, lastRoundInv } = require('./steps')
 
-import { compose } from './utils'
+const { compose } = require('./utils')
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
 // É nesse algoritmo que pegamos a chave inicial devolvemos 10 novas chaves.
 // A chave inicial mais as novas 10 chaves formam
 // as 11 chaves necessárias para as 11 rodadas da encriptação.
-import expandKey from './expandKey'
+const expandKey = require('./expandKey')
+
 
 // ### Encriptando
 
@@ -57,7 +58,7 @@ const encryptRounds = (key, keys = expandKey(key)) =>
 
 // A encriptação é uma composição com a saída de `encryptRounds`.
 // Essa composição recebe o texto plano e serve como `Uint8Array`
-export const encrypt = (plain, key) =>
+const encrypt = (plain, key) =>
   new Uint8Array(
     compose(...encryptRounds(key))(plain)
   )
@@ -75,7 +76,9 @@ const decryptRounds = (key, keys = expandKey(key).reverse()) =>
 
 // O processo de decriptação é idêntico ao de encriptação, porém utilizando o `decryptRounds`
 // para a composição.
-export const decrypt = (cipher, key) =>
+const decrypt = (cipher, key) =>
   new Uint8Array(
     compose(...decryptRounds(key))(cipher)
   )
+
+module.exports = { decrypt, encrypt }

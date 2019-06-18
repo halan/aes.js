@@ -46,6 +46,10 @@ const SBOX_INV =
    0x17,0x2b,0x04,0x7e,0xba,0x77,0xd6,0x26,0xe1,0x69,0x14,0x63,0x55,0x21,0x0c,0x7d]
 
 // O processo de substituição é extremamente simples, 1 pra 1.
-export default buffer => buffer.map( b => SBOX[b] )
+const subBytes = buffer => buffer.map( b => SBOX[b] )
 
-export const subBytesInv = buffer => buffer.map( b => SBOX_INV[b] )
+const subBytesInv = buffer => buffer.map( b => SBOX_INV[b] )
+
+module.exports = {
+  subBytes, subBytesInv
+}

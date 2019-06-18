@@ -1,5 +1,5 @@
-import { expect } from 'chai'
-import { encrypt, decrypt } from 'index'
+const { expect } = require('chai')
+const { encrypt, decrypt } = require('index')
 
 describe('AES', () => {
   const plain =     new Uint8Array([ 18,  52,  86, 120, 144, 171, 205, 239,  18,  52,  86, 120, 144, 171, 205, 239])

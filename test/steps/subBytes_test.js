@@ -1,5 +1,5 @@
-import { expect } from 'chai'
-import { subBytes, subBytesInv } from 'steps'
+const { expect } = require('chai')
+const { subBytes, subBytesInv } = require('steps')
 
 describe('subBytes', () => {
   it('sub bytes', () => {

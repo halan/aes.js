@@ -3,10 +3,10 @@
 // ### Importações
 
 // Importa o passo `subBytes` que faz a substituição com a S-Box
-import subBytes from './steps/subBytes'
+const { subBytes } = require('./steps/subBytes')
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-import { xor, lastWord, splitInWords } from './utils'
+const { xor, lastWord, splitInWords } = require('./utils')
 
 // ### Constante Rcon
 
@@ -62,7 +62,7 @@ const generate = (lastKey, rcon) => {
 }
 
 // Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!
-export default key => (
+module.exports = key => (
   // Passo um reduce sobre os RCONS, e para cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada.
   // O rcon[0] não é utilizado, por isso o `slice`.

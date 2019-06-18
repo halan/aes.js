@@ -1,5 +1,5 @@
-import { expect } from 'chai'
-import { shiftRows, shiftRowsInv } from 'steps'
+const { expect } = require('chai')
+const { shiftRows, shiftRowsInv } = require('steps')
 
 describe('shiftRows', () => {
   it('shift rows', () => {
