@@ -65,7 +65,7 @@ export const encrypt = (plain, key) =>
 // ### Decriptando
 
 // Essa função é bem parecida com a `encrypRounds` em sua estrutura.
-// Ela usa as versões inversas dos rounds e as chaves espandidas são servidas de forma reversa.
+// Ela usa as versões inversas dos rounds e as chaves expandidas são servidas de forma reversa.
 const decryptRounds = (key, keys = expandKey(key).reverse()) =>
   [
     state => lastRoundInv(state, keys[keys.length-1]),
