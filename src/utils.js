@@ -1,8 +1,9 @@
-// Pesquisando por uma função que quebre um array em pedaços iguais
-// esbarrei nesse [gist](https://gist.github.com/webinista/11240585#gistcomment-1781756).
-const group = (arr, size) =>
-  arr.reduce((a,b,i,g) =>
-    !(i % size) ? (a.push(g.slice(i, i + size)), a) : a, [])
+const partition = size => arr =>
+  arr.reduce(([head = [], ...rest], x) =>
+    head.length >= size
+      ? [[x], head, ...rest]
+      : [[...head, x], ...rest]
+  , []).reverse()
 
 // Constante pra definir o tamanho em bytes de um word: `4`.
 // Esta é utilizada tanto para `lastWord` quanto para `splitInWords`.
@@ -10,17 +11,27 @@ const WORD_SIZE = 4
 
 // Função auxiliar que devolve a última words.
 // Na prática: retorna um array com os 4 últimos elementos.
-const lastWord = arr => arr.slice(-WORD_SIZE)
+const lastWord = arr => arr.length && arr.slice(-WORD_SIZE)
 
 // Função auxiliar que divide um array em words, ou seja, divide em grupos de 4 elementos.
-const splitInWords = arr => group(arr, WORD_SIZE)
+const splitInWords = partition(WORD_SIZE)
 
-// Pesquisando sobre uma função pequena escrita com es6 que faça um compose
-// achei esse materiao [aqui](https://medium.com/@dtipson/creating-an-es6ish-compose-in-javascript-ac580b95104a).
-const compose = (fn, ...rest) => 
-  rest.length === 0 ? fn : (...args) => fn(compose(...rest)(...args))
+const compose = (...fn) => x =>
+  fn.reduceRight((v, f) => f(v), x);
+
+const map = fn => arr =>
+  arr.map(fn)
+
+const reduce = (fn, ini) => arr =>
+  arr.reduce(fn, ini)
+
+const reverse = arr =>
+  arr.reverse()
+
+const toUint8 = arr =>
+  new Uint8Array(arr)
 
 // xor byte a byte
-const xor = (left, right) => right.map( (b, i) => left[i] ^ b)
+const xor = left => map((b, i) => left[i] ^ b)
 
-module.exports = { lastWord, splitInWords, compose, xor }
+module.exports = { lastWord, splitInWords, compose, xor, map, reduce, toUint8, reverse }

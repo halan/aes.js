@@ -2,6 +2,8 @@
 //
 // `addRoundKey` é apenas um xor byte a byte
 
+const { xor } = require('../utils')
+
 module.exports = {
-  addRoundKey: require('../utils').xor
+  addRoundKey: (left, right) => xor(left)(right)
 }
