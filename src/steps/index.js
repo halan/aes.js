@@ -5,7 +5,7 @@
 // criei `firstRound`, `middleRound` e `lastRound`.
 // E também suas versões invertidas para decriptação.
 
-const { compose } = require('../utils')
+const { pipe } = require('../utils')
 
 // São 4 as etapas de encriptação (e seus inversos!)
 const { subBytes, subBytesInv } = require('./subBytes')
@@ -18,28 +18,42 @@ const { addRoundKey } = require('./addRoundKey')
 
 // Os demais rounds, exceto o último, o `addRoundKey` é aplicado sobre
 // um pipe de `mixColumns( shiftRows( subBytes ))`.
-const middleRound = (buffer, key) =>
-  addRoundKey(
-    compose(mixColumns, shiftRows, subBytes)(buffer),
-    key
+const middleRound = key =>
+  pipe(
+    subBytes,
+    shiftRows,
+    mixColumns,
+    addRoundKey(key)
   )
 
 // O último round não utiliza a etapa `mixColumns`
-const lastRound = (buffer, key) =>
-  addRoundKey(
-    compose(shiftRows, subBytes)(buffer),
-    key
-  )
+const lastRound = key =>
+ pipe(
+    subBytes,
+    shiftRows,
+    // aqui não tem mixColumns :)
+    addRoundKey(key),
+ )
 
 // ## Rounds de decriptação
 
 // As composições a seguir utilizam as versões invertidas das operações.
 // Além disso são aplicados em ordem inversa cada round em si e o último round passa a ser análogo ao primeiro.
-const firstRoundInv = (buffer, key) =>
-  compose(subBytesInv, shiftRowsInv)(addRoundKey(buffer, key))
+const firstRoundInv = key =>
+  pipe(
+    addRoundKey(key),
+    // aqui não tem mixColumnsInv
+    shiftRowsInv,
+    subBytesInv
+  )
 
-const middleRoundInv = (buffer, key) =>
-  compose(subBytesInv, shiftRowsInv, mixColumnsInv)(addRoundKey(buffer, key))
+const middleRoundInv = key =>
+  pipe(
+    addRoundKey(key),
+    mixColumnsInv,
+    shiftRowsInv,
+    subBytesInv
+  )
 
 
 module.exports = {

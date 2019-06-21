@@ -6,7 +6,7 @@
 const { subBytes } = require('./steps/subBytes')
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-const { toUint8, xor, reverse, compose, map, reduce, lastWord, splitInWords } = require('./utils')
+const { toUint8, xor, reverse, pipe, map, reduce, lastWord, splitInWords } = require('./utils')
 
 // ### Constante Rcon
 
@@ -37,60 +37,69 @@ const subWord = subBytes
 const xorFirstByte = value => ([first, ...rest]) =>
   [ value ^ first, ...rest ]
 
+// Primeiramente calculo o valor base usando `KeyScheduleCore` que vai receber a última word da chave.
 // Procedimento principal da expansão de chave. Aqui aplicamos a sequência:
 // `rotWord`, `subWord` e por fim o `xor` no `rcon` correspondente da rodada.
 // Esse procedimento é aplicado sempre na primeira word de cada chave, ou seja
 // é aplicada tantas vezes iguais ao número de rodadas, que no noso caso são 11.
-const keyScheduleCore = rcon =>
-  compose(
-    xorFirstByte(rcon),
+const keySchedule = rcon =>
+  pipe(
+    lastWord,
+    rotWord,
     subWord,
-    rotWord
+    xorFirstByte(rcon)
   )
-
 // [Mais detalhes...](https://en.wikipedia.org/wiki/Rijndael_key_schedule#Common_operations)
 
 // ### Geração das chaves
 
 // Separei nessa função, o procedimento de criar uma chave completa de 128 bits
 // a partir de uma chave anterior e um valor de rcon.
-const generate = (rcon, lastKey) => {
-  // Primeiramente calculo o valor base usando `KeyScheduleCore` que vai receber a última word da chave.
-  const base = compose(
-    keyScheduleCore(rcon),
-    lastWord
-  )(lastKey)
-
+const generate = (initial, key) =>
   // Divido a chave em grupos formando 4 words.
   // Então faço um reduce em cima dessas words, ou seja, um loop de 4 iterações.
   // Em cada iteração ele monta mais uma word da chave
   // A primeira word é um xor com a primeira word da chave anterior e o valor base
   // As words seguintes é um xor com a word correspondente na chave anterior
   // e a última word calculado da própria chave (estou usando `Uint8Array` pra armazenar os valores)
-  return compose(
-    reduce( (newKey, xorWord) => (
-      [...newKey, ...xorWord(lastWord(newKey) || base)]
-    ), []),
+  pipe(
+    splitInWords,
+    // O array de words se transfrma aqui num array de funções unárias equivalentes a um xor
+    // tendo cada word já definido como sendo valor da direita.
     map(xor),
-    splitInWords
-  )(lastKey)
-}
+    // xorWord recebe um único argumento e faz um xor da word atual com o argumento recebido.
+    reduce( (newKey, xorWord) => 
+      [
+        ...newKey,
+        // Um xor de cada word com a word anterior
+        // A primeira word faz um xor com `initial`
+        ...xorWord(lastWord(newKey) || initial)
+      ]
+    , [])
+  )(key)
+
 
 // Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!
-module.exports = key => (
+module.exports = key =>
   // Passo um reduce sobre os RCONS, e para cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada.
-  compose(
-    // Cada chave será transformada em `Uint8Array`
-    map(toUint8),
-    reverse,
-    reduce( ([last, ...keys], rcon) =>
+  pipe(
+    map(keySchedule),
+    reduce( ([last, ...keys], keyScheduleRcon) =>
       // Pega a última chave
       // A cada rodada, gera uma nova chave e adiciona à lista de chaves
-      [generate(rcon, last), last, ...keys]
+      [
+        generate(keyScheduleRcon(last), last),
+        last,
+        ...keys
+      ]
 
       // Partindo da chave original
-    , [key] )
+    , [key] ),
+    // Precisamos de um reverse aqui pois nosso reduce foi aplicando os valores da direita para a esquerda
+    reverse,
+    // Cada chave será transformada em `Uint8Array`
+    map(toUint8)
   // O rcon[0] não é utilizado, por isso o `slice`.
   )(RCON.slice(1))
-)
+

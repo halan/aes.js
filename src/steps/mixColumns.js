@@ -118,10 +118,10 @@ const G14 =
 
 // Calculo de difusão de coluna.
 const mixCol = (a0, a1, a2, a3) => ([
-  G2[a0] ^ G3[a1] ^     a2 ^ a3,
-      a0 ^ G2[a1] ^ G3[a2] ^ a3,
-      a0 ^     a1 ^ G2[a2] ^ G3[a3],
-  G3[a0] ^     a1 ^     a2 ^ G2[a3]
+  G2[a0] ^ G3[a1] ^     a2  ^    a3,
+     a0  ^ G2[a1] ^  G3[a2] ^    a3,
+     a0  ^    a1  ^  G2[a2] ^ G3[a3],
+  G3[a0] ^    a1  ^     a2  ^ G2[a3]
 ])
 
 // Montagem das colunas difusas.

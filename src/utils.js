@@ -16,9 +16,7 @@ const lastWord = arr => arr.length && arr.slice(-WORD_SIZE)
 // Função auxiliar que divide um array em words, ou seja, divide em grupos de 4 elementos.
 const splitInWords = partition(WORD_SIZE)
 
-const compose = (...fn) => x =>
-  fn.reduceRight((v, f) => f(v), x);
-
+// map, reduce, reverse e toUint8 escritos de forma a facilitar construções utilizando pipe
 const map = fn => arr =>
   arr.map(fn)
 
@@ -31,7 +29,11 @@ const reverse = arr =>
 const toUint8 = arr =>
   new Uint8Array(arr)
 
+// pipe(fn1, fn2)(dado) equivale a fn2(fn1(dado))
+const pipe = (...fn) => x =>
+  fn.reduce((v, f) => f(v), x);
+
 // xor byte a byte
 const xor = left => map((b, i) => left[i] ^ b)
 
-module.exports = { lastWord, splitInWords, compose, xor, map, reduce, toUint8, reverse }
+module.exports = { lastWord, splitInWords, pipe, xor, map, reduce, toUint8, reverse }
