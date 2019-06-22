@@ -29,5 +29,31 @@ describe('mixColumns', () => {
        117, 253,  63, 228]
     )
   })
+
+  it('mix columns could be reverted by mix columns reverse', () => {
+    expect(mixColumns(mixColumnsInv(
+      [164,  64,  15, 245,
+        14, 236, 172, 200,
+       114,  72, 204,  78,
+       117, 253,  63, 228]
+    ))).to.be.deep.equal(
+      [164,  64,  15, 245,
+        14, 236, 172, 200,
+       114,  72, 204,  78,
+       117, 253,  63, 228]
+    )
+
+    expect(mixColumnsInv(mixColumns(
+      [164,  64,  15, 245,
+        14, 236, 172, 200,
+       114,  72, 204,  78,
+       117, 253,  63, 228]
+    ))).to.be.deep.equal(
+      [164,  64,  15, 245,
+        14, 236, 172, 200,
+       114,  72, 204,  78,
+       117, 253,  63, 228]
+    )
+  })
 })
 

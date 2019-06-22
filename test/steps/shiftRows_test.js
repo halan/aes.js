@@ -30,5 +30,30 @@ describe('shiftRows', () => {
     )
   })
 
+  it('shift rows could be reverted by shift rows inverse', () => {
+    expect(shiftRowsInv(shiftRows(
+      [164, 253, 204, 200,
+        14,  64,  63,  78,
+       114, 236,  15, 228,
+       117,  72, 172, 245]
+    ))).to.be.deep.equal(
+      [164, 253, 204, 200,
+        14,  64,  63,  78,
+       114, 236,  15, 228,
+       117,  72, 172, 245]
+    )
+
+    expect(shiftRows(shiftRowsInv(
+      [164, 253, 204, 200,
+        14,  64,  63,  78,
+       114, 236,  15, 228,
+       117,  72, 172, 245]
+    ))).to.be.deep.equal(
+      [164, 253, 204, 200,
+        14,  64,  63,  78,
+       114, 236,  15, 228,
+       117,  72, 172, 245]
+    )
+  })
 })
 
