@@ -6,7 +6,7 @@
 const { subBytes } = require('./steps/subBytes')
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-const { toUint8, xor, reverse, pipe, map, reduce, flat, lastWord, chainBlocks, splitInWords } = require('./utils')
+const { xor, reverse, pipe, map, reduce, flat, lastWord, chainBlocks, splitInWords } = require('./utils')
 
 // ### Constante Rcon
 
@@ -61,7 +61,7 @@ const generate = (initial, key) =>
   // Em cada iteração ele monta mais uma word da chave
   // A primeira word é um xor com a primeira word da chave anterior e o valor base
   // As words seguintes é um xor com a word correspondente na chave anterior
-  // e a última word calculado da própria chave (estou usando `Uint8Array` pra armazenar os valores)
+  // e a última word calculado da própria chave.
   pipe(
     splitInWords,
     // O chainBlocks aplicará um xor entre initial e o primeiro valor do array de words
@@ -86,8 +86,8 @@ module.exports = key =>
     )(key),
     // A chave inicial precisa estar contida na lista final
     keys => [key, ...keys],
-    // Cada chave será transformada em `Uint8Array`
-    map(toUint8)
+    // Cada chave é cnvertida para um buffer
+    map(Buffer.from)
   // O rcon[0] não é utilizado, por isso o `slice`.
   )(RCON.slice(1))
 

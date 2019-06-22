@@ -35,7 +35,7 @@ const  {
   lastRoundInv
 } = require('./steps')
 
-const { pipe, reduce, map, toUint8 } = require('./utils')
+const { pipe, reduce, map } = require('./utils')
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
@@ -61,11 +61,11 @@ const encryptRounds = keys =>
     applyRounds(middleRound)(keys.slice(1, -1)),
     // O último round é servido primeiro, ele recebe a última chave.
     lastRound(keys[keys.length-1]),
-    toUint8
+    Buffer.from
   )
 
 // A encriptação é uma composição com a saída de `encryptRounds`.
-// Essa composição recebe o texto plano e serve como `Uint8Array`
+// Essa composição recebe o texto plano e serve encriptado
 const encrypt = (plain, key) =>
   encryptRounds(
     // `expandKey` usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
@@ -84,7 +84,7 @@ const decryptRounds = keys =>
     firstRoundInv(keys[0]),
     applyRounds(middleRoundInv)(keys.slice(1, -1)),
     lastRoundInv(keys[keys.length-1]),
-    toUint8
+    Buffer.from
   )
 
 // O processo de decriptação é idêntico ao de encriptação, porém utilizando o `decryptRounds`
