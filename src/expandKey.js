@@ -6,7 +6,7 @@
 const { subBytes } = require('./steps/subBytes')
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-const { toUint8, xor, reverse, pipe, map, reduce, lastWord, splitInWords } = require('./utils')
+const { toUint8, xor, reverse, pipe, map, reduce, flat, lastWord, chainBlocks, splitInWords } = require('./utils')
 
 // ### Constante Rcon
 
@@ -64,18 +64,11 @@ const generate = (initial, key) =>
   // e a última word calculado da própria chave (estou usando `Uint8Array` pra armazenar os valores)
   pipe(
     splitInWords,
-    // O array de words se transfrma aqui num array de funções unárias equivalentes a um xor
-    // tendo cada word já definido como sendo valor da direita.
-    map(xor),
-    // xorWord recebe um único argumento e faz um xor da word atual com o argumento recebido.
-    reduce( (newKey, xorWord) => 
-      [
-        ...newKey,
-        // Um xor de cada word com a word anterior
-        // A primeira word faz um xor com `initial`
-        ...xorWord(lastWord(newKey) || initial)
-      ]
-    , [])
+    // O chainBlocks aplicará um xor entre initial e o primeiro valor do array de words
+    // O resultado passará por um xor com o segundo valor e assim por diante
+    chainBlocks(xor)(initial),
+    // O flat irá desfazer o splitInWords, ao invés de ter 4 elementos com 4 bytes cada, teremos 16 bytes
+    flat
   )(key)
 
 
@@ -84,20 +77,15 @@ module.exports = key =>
   // Passo um reduce sobre os RCONS, e para cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada.
   pipe(
+    // Prepara uma coleção de keySchedule já com rcon correspondente aplicado
     map(keySchedule),
-    reduce( ([last, ...keys], keyScheduleRcon) =>
-      // Pega a última chave
-      // A cada rodada, gera uma nova chave e adiciona à lista de chaves
-      [
-        generate(keyScheduleRcon(last), last),
-        last,
-        ...keys
-      ]
-
-      // Partindo da chave original
-    , [key] ),
-    // Precisamos de um reverse aqui pois nosso reduce foi aplicando os valores da direita para a esquerda
-    reverse,
+    // Passa um chainBlocks sobre o keySchedule já cm o rcon correspondente aplicado,
+    chainBlocks(keyScheduleRcon => k =>
+      //e então utiiza este valor como sendo o initial da função de geração de chaves
+      generate(keyScheduleRcon(k), k)
+    )(key),
+    // A chave inicial precisa estar contida na lista final
+    keys => [key, ...keys],
     // Cada chave será transformada em `Uint8Array`
     map(toUint8)
   // O rcon[0] não é utilizado, por isso o `slice`.
