@@ -10,7 +10,7 @@ const { toUint8, xor, reverse, pipe, map, reduce, flat, lastWord, chainBlocks, s
 
 // ### Constante Rcon
 
-// Constante rcon pra ser feito xor com o primeiro byte e cada word (1 word são 4 bytes)
+// Constante rcon para ser feito xor com o primeiro byte e cada word (1 word são 4 bytes)
 // 1 rcon para cada nova chave criada, ou seja: 10 rcons.
 // Mais detalhes sobre o cálculo para chegar nessa constante pode ser encontrado
 // [aqui](https://en.wikipedia.org/wiki/Rijndael_key_schedule#Rcon).
