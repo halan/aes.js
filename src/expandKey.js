@@ -37,11 +37,11 @@ const subWord = subBytes
 const xorFirstByte = value => ([first, ...rest]) =>
   [ value ^ first, ...rest ]
 
-// Primeiramente calculo o valor base usando `KeyScheduleCore` que vai receber a última word da chave.
+// Primeiramente calculo o valor base usando `KeySchedule` que vai receber um rcon e a última word da chave.
 // Procedimento principal da expansão de chave. Aqui aplicamos a sequência:
 // `rotWord`, `subWord` e por fim o `xor` no `rcon` correspondente da rodada.
 // Esse procedimento é aplicado sempre na primeira word de cada chave, ou seja
-// é aplicada tantas vezes iguais ao número de rodadas, que no noso caso são 11.
+// é aplicada tantas vezes iguais ao número de rodadas, que no nosso caso são 11.
 const keySchedule = rcon =>
   pipe(
     lastWord,
@@ -54,7 +54,7 @@ const keySchedule = rcon =>
 // ### Geração das chaves
 
 // Separei nessa função, o procedimento de criar uma chave completa de 128 bits
-// a partir de uma chave anterior e um valor de rcon.
+// a partir de um valor base (keySchedule sobre o rcon correspondente) e a chave anterior.
 const generate = (initial, key) =>
   // Divido a chave em grupos formando 4 words.
   // Então faço um reduce em cima dessas words, ou seja, um loop de 4 iterações.
