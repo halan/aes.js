@@ -50,4 +50,27 @@ const chainBlocks = fn => ini =>
     reverse
   )
 
-module.exports = { lastWord, splitInWords, pipe, xor, map, reduce, flat, chainBlocks, reverse }
+const chainBlocksInv = fn => ini =>
+  pipe(
+    reduce(([arr, last], curr) => [
+      [ ...arr, fn(last)(curr)],
+      curr
+    ], [[], ini]),
+    ([arr, last]) => arr
+  )
+
+
+
+module.exports = {
+  lastWord,
+  partition,
+  splitInWords,
+  pipe,
+  xor,
+  map,
+  reduce,
+  flat,
+  chainBlocks,
+  chainBlocksInv,
+  reverse
+}
