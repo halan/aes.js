@@ -5,7 +5,7 @@
 // criei `firstRound`, `middleRound` e `lastRound`.
 // E também suas versões invertidas para decriptação.
 
-const { pipe } = require('../utils')
+const { pipe } = require('../../utils')
 
 // São 4 as etapas de encriptação (e seus inversos!)
 const { subBytes, subBytesInv } = require('./subBytes')

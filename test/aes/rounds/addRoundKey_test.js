@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { addRoundKey } = require('steps')
+const { addRoundKey } = require('aes/rounds')
 
 describe('addRoundKey', () => {
   it('add round key', () => {

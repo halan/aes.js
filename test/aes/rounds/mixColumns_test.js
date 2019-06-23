@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { mixColumns, mixColumnsInv } = require('steps')
+const { mixColumns, mixColumnsInv } = require('aes/rounds')
 
 describe('mixColumns', () => {
   it('mix columns', () => {

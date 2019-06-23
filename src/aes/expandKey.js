@@ -3,10 +3,20 @@
 // ### Importações
 
 // Importa o passo `subBytes` que faz a substituição com a S-Box
-const { subBytes } = require('./steps/subBytes')
+const { subBytes } = require('./rounds/subBytes')
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-const { xor, reverse, pipe, map, reduce, flat, lastWord, chainBlocks, splitInWords } = require('./utils')
+const {
+  xor,
+  reverse,
+  pipe,
+  map,
+  reduce,
+  flat,
+  lastWord,
+  chainBlocks,
+  splitInWords
+} = require('../utils')
 
 // ### Constante Rcon
 

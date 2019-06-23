@@ -4,7 +4,7 @@
 // são combinados usando uma transformação linear invertível.
 // ([fonte](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Etapa_de_MixColumns)).
 
-const { splitInWords, flat, pipe, map } = require('../utils')
+const { splitInWords, flat, pipe, map } = require('../../utils')
 
 // Tabelas pré-calculadas de multiplicação de Galois.
 // Mais detalhes e o próprio cálculo pode ser encontrado [aqui](https://en.wikipedia.org/wiki/Rijndael_mix_columns)

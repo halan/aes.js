@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const expandKey = require('expandKey')
+const expandKey = require('aes/expandKey')
 
 describe('expandKey', () => {
   it('expand key', () => {

@@ -5,7 +5,7 @@
   "main": "./src/index.js",
   "scripts": {
     "doc": "groc",
-    "test": "NODE_PATH=./src npx mocha test/*_test.js test/**/*_test.js"
+    "test": "NODE_PATH=./src npx mocha test/**/*_test.js test/**/**/*_test.js"
   },
   "author": "Halan Pinheiro",
   "license": "ISC",

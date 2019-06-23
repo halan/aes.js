@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { shiftRows, shiftRowsInv } = require('steps')
+const { shiftRows, shiftRowsInv } = require('aes/rounds')
 
 describe('shiftRows', () => {
   it('shift rows', () => {

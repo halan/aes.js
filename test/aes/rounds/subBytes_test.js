@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { subBytes, subBytesInv } = require('steps')
+const { subBytes, subBytesInv } = require('aes/rounds')
 
 describe('subBytes', () => {
   it('sub bytes', () => {

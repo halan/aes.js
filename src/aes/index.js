@@ -33,9 +33,9 @@ const  {
   firstRoundInv,
   middleRoundInv,
   lastRoundInv
-} = require('./steps')
+} = require('./rounds')
 
-const { pipe, reduce, map } = require('./utils')
+const { pipe, reduce, map } = require('../utils')
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
@@ -66,13 +66,13 @@ const encryptRounds = keys =>
 
 // A encriptação é uma composição com a saída de `encryptRounds`.
 // Essa composição recebe o texto plano e serve encriptado
-const encrypt = (plain, key) =>
+const encrypt = key =>
   encryptRounds(
     // `expandKey` usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
     // em um array com 11 chaves, sendo a primeira a chave original, e as demais são cálculos
     // a partir da primeira. [Essa parte do código também está totalmente comentada](expandKey.html)
     expandKey(key)
-  )(plain)
+  )
 
 
 // ### Decriptando
@@ -89,10 +89,10 @@ const decryptRounds = keys =>
 
 // O processo de decriptação é idêntico ao de encriptação, porém utilizando o `decryptRounds`
 // para a composição.
-const decrypt = (cipher, key) =>
+const decrypt = key =>
   decryptRounds(
     expandKey(key).reverse()
-  )(cipher)
+  )
 
 
 module.exports = { decrypt, encrypt }
