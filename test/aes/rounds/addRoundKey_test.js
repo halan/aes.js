@@ -1,5 +1,5 @@
-import { expect } from 'chai'
-import { addRoundKey } from 'steps'
+const { expect } = require('chai')
+const { addRoundKey } = require('aes/rounds')
 
 describe('addRoundKey', () => {
   it('add round key', () => {
@@ -7,7 +7,7 @@ describe('addRoundKey', () => {
       [ 18,  52,  86, 120,
        144, 171, 205, 239,
         18,  52,  86, 120,
-       144, 171, 205, 239],
+       144, 171, 205, 239])(
       [ 15,  21, 113, 201,
         71, 217, 232,  89,
         12, 183, 173, 214,
@@ -25,7 +25,7 @@ describe('addRoundKey', () => {
       [ 29,  33,  39, 177,
        215, 114,  37, 182,
         30, 131, 251, 174,
-        63, 212, 170, 119],
+        63, 212, 170, 119])(
       [ 15,  21, 113, 201,
         71, 217, 232,  89,
         12, 183, 173, 214,

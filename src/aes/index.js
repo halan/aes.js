@@ -25,57 +25,74 @@
 // No AES utiliza-se 9 rodadas mais 2.
 // Sendo a primeira apenas um xor com a chave
 // e a última não tem a etapa `mixColumns`.
-import { firstRound, middleRound, lastRound,
-         firstRoundInv, middleRoundInv, lastRoundInv } from './steps'
+const  {
+  firstRound,
+  middleRound,
+  lastRound,
+  
+  firstRoundInv,
+  middleRoundInv,
+  lastRoundInv
+} = require('./rounds')
 
-import { compose } from './utils'
+const { pipe, reduce, map } = require('../utils')
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
 // É nesse algoritmo que pegamos a chave inicial devolvemos 10 novas chaves.
 // A chave inicial mais as novas 10 chaves formam
 // as 11 chaves necessárias para as 11 rodadas da encriptação.
-import expandKey from './expandKey'
+const expandKey = require('./expandKey')
+
+// Está é uma função autiliar que aplica rounds iguais em sequência de acordo com uma
+// coleção da chaves. Vamos utilizar isso para executar 9 rounds com as 9 chaves das 11 (as do meio).
+const applyRounds = fn => keys =>
+  pipe(...map(fn)(keys))
 
 // ### Encriptando
 
-// Esta função recebe uma chave e devolve 3 funções para serem utilizadas na encriptação.
-// O segundo argumento é definido automaticamente com base no primeiro.
-// `expandKey` usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
-// em um array com 11 chaves, sendo a primeira a chave original, e as demais são cálculos
-// a partir da primeira. [Essa parte do código também está totalmente comentada](expandKey.html)
-const encryptRounds = (key, keys = expandKey(key)) =>
-  [
-    // O último round é servido primeiro, ele recebe a última chave.
-    state => lastRound(state, keys[keys.length-1]),
-    // Os rounds do meio passam por um reduce, assim eles rodarão n-2 vezes.
-    // Sendo n a quantidade total de rounds.
-    state => keys.slice(1, -1).reduce(middleRound, state),
+// Esta função recebe uma chave e devolve uma função para a encriptação.
+const encryptRounds = keys =>
+  pipe(
     // O primeiro round recebe a primeira chave e é servido por último.
-    state => firstRound(state, keys[0])
-  ]
+    firstRound(keys[0]),
+    // Os rounds do meio são aplicados com a função auxiliar applyRounds,
+    // pra cada chave, um round, no caso keys.slice(1, -1) entrega 9 chaves.
+    applyRounds(middleRound)(keys.slice(1, -1)),
+    // O último round é servido primeiro, ele recebe a última chave.
+    lastRound(keys[keys.length-1]),
+    Buffer.from
+  )
 
 // A encriptação é uma composição com a saída de `encryptRounds`.
-// Essa composição recebe o texto plano e serve como `Uint8Array`
-export const encrypt = (plain, key) =>
-  new Uint8Array(
-    compose(...encryptRounds(key))(plain)
+// Essa composição recebe o texto plano e serve encriptado
+const encrypt = key =>
+  encryptRounds(
+    // `expandKey` usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
+    // em um array com 11 chaves, sendo a primeira a chave original, e as demais são cálculos
+    // a partir da primeira. [Essa parte do código também está totalmente comentada](expandKey.html)
+    expandKey(key)
   )
+
 
 // ### Decriptando
 
 // Essa função é bem parecida com a `encrypRounds` em sua estrutura.
-// Ela usa as versões inversas dos rounds e as chaves espandidas são servidas de forma reversa.
-const decryptRounds = (key, keys = expandKey(key).reverse()) =>
-  [
-    state => lastRoundInv(state, keys[keys.length-1]),
-    state => keys.slice(1, -1).reduce(middleRoundInv, state),
-    state => firstRoundInv(state, keys[0])
-  ]
+// Ela usa as versões inversas dos rounds e as chaves expandidas são servidas de forma reversa.
+const decryptRounds = keys =>
+  pipe(
+    firstRoundInv(keys[0]),
+    applyRounds(middleRoundInv)(keys.slice(1, -1)),
+    lastRoundInv(keys[keys.length-1]),
+    Buffer.from
+  )
 
 // O processo de decriptação é idêntico ao de encriptação, porém utilizando o `decryptRounds`
 // para a composição.
-export const decrypt = (cipher, key) =>
-  new Uint8Array(
-    compose(...decryptRounds(key))(cipher)
+const decrypt = key =>
+  decryptRounds(
+    expandKey(key).reverse()
   )
+
+
+module.exports = { decrypt, encrypt }

@@ -4,6 +4,8 @@
 // são combinados usando uma transformação linear invertível.
 // ([fonte](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Etapa_de_MixColumns)).
 
+const { splitInWords, flat, pipe, map } = require('../../utils')
+
 // Tabelas pré-calculadas de multiplicação de Galois.
 // Mais detalhes e o próprio cálculo pode ser encontrado [aqui](https://en.wikipedia.org/wiki/Rijndael_mix_columns)
 // G2 e G3 é utilizado na difusão das colunas para *encriptação*. G9, G11, G13 e G4 são utilizadasna *decriptação*.
@@ -117,23 +119,23 @@ const G14 =
    0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d]
 
 // Calculo de difusão de coluna.
-const mixCol = (a0, a1, a2, a3) => ([
-  G2[a0] ^ G3[a1] ^     a2 ^ a3,
-      a0 ^ G2[a1] ^ G3[a2] ^ a3,
-      a0 ^     a1 ^ G2[a2] ^ G3[a3],
-  G3[a0] ^     a1 ^     a2 ^ G2[a3]
+const mixCol = ([a0, a1, a2, a3]) => ([
+  G2[a0] ^ G3[a1] ^     a2  ^    a3,
+     a0  ^ G2[a1] ^  G3[a2] ^    a3,
+     a0  ^    a1  ^  G2[a2] ^ G3[a3],
+  G3[a0] ^    a1  ^     a2  ^ G2[a3]
 ])
 
 // Montagem das colunas difusas.
-export default buffer => ([
-  ...mixCol(...buffer.slice(0, 4)),
-  ...mixCol(...buffer.slice(4, 8)),
-  ...mixCol(...buffer.slice(8, 12)),
-  ...mixCol(...buffer.slice(12, 16)),
-])
+const mixColumns =
+  pipe(
+    splitInWords,
+    map(mixCol),
+    flat
+  )
 
 // Cálculo inverso da difusão de colunas.
-const mixColInv = (a0, a1, a2, a3) => ([
+const mixColInv = ([a0, a1, a2, a3]) => ([
   G14[a0] ^ G9[a3] ^ G13[a2] ^ G11[a1],
   G14[a1] ^ G9[a0] ^ G13[a3] ^ G11[a2],
   G14[a2] ^ G9[a1] ^ G13[a0] ^ G11[a3],
@@ -141,9 +143,13 @@ const mixColInv = (a0, a1, a2, a3) => ([
 ])
 
 // Montagem das colunas com a difusão *desfeita*.
-export const mixColumnsInv = buffer => ([
-  ...mixColInv(...buffer.slice(0, 4)),
-  ...mixColInv(...buffer.slice(4, 8)),
-  ...mixColInv(...buffer.slice(8, 12)),
-  ...mixColInv(...buffer.slice(12, 16)),
-])
+const mixColumnsInv =
+  pipe(
+    splitInWords,
+    map(mixColInv),
+    flat
+  )
+
+module.exports = {
+  mixColumns, mixColumnsInv
+}
