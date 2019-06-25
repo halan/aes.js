@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><title>aes/index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="aes/index"><meta name="groc-project-path" content="src/aes/index.js"><meta name="groc-github-url" content="https://github.com/halan/aes-es6"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/halan/aes-es6/blob/master/src/aes/index.js">src/aes/index.js</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h2 id="aviso">Aviso</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Este código não deve e nem tem pretenções de ser utilizado em produção.
+Deve ser utilizado somente com fins didáticos. O foco é tanto mostrar um algoritmo criptográfico,
+quanto exemplos de uso de programação funcional e ECMAScript6.
+Caso esteja interessado em encriptar coisas em produção, utilize a 
+<a href="https://developer.mozilla.org/pt-BR/docs/Web/API/Web_Crypto_API">API do browser para isso</a> ou
+bibliotecas especializadas em criptografia como 
+por exemplo: <a href="https://github.com/brix/crypto-js">crypto.js</a>.</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="resumo">Resumo</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O objetivo desse arquivo é bem simples.
+Organizar em alto nível a lógica básica do AES:</p>
+<ul>
+<li>Expandir a chave de 128 bits em 11 chaves do mesmo tamanho</li>
+<li>Executar as etapas da primeira rodada com a chave original</li>
+<li>Executar 9 vezes as etapas de embaralhalamento com as respectivas chaves</li>
+<li>Executar a rodada final com a última das 11 chaves</li>
+</ul></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><a href="https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Descri.C3.A7.C3.A3o_de_Cifra">Descrição um pouco mais detalhada na Wikipedia...</a>
+<a href="http://pt.stackoverflow.com/a/43665">Aqui tem uma descrição um pouco melhor, principalmente dos cálculos...</a></p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="importando-os-mdulos">Importando os módulos</h3></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>No AES utiliza-se 9 rodadas mais 2.
+Sendo a primeira apenas um xor com a chave
+e a última não tem a etapa <code>mixColumns</code>.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span>  {
+  firstRound,
+  middleRound,
+  lastRound,
+  
+  firstRoundInv,
+  middleRoundInv,
+  lastRoundInv
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./rounds'</span>)
+
+<span class="hljs-keyword">const</span> { pipe, reduce, map } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../utils'</span>)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Algoritmo de expansão de chave.
+Nessa implementação suportamos apenas uma chave de 128 bits.
+É nesse algoritmo que pegamos a chave inicial devolvemos 10 novas chaves.
+A chave inicial mais as novas 10 chaves formam
+as 11 chaves necessárias para as 11 rodadas da encriptação.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> expandKey = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./expandKey'</span>)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Está é uma função autiliar que aplica rounds iguais em sequência de acordo com uma
+coleção da chaves. Vamos utilizar isso para executar 9 rounds com as 9 chaves das 11 (as do meio).</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> applyRounds = fn =&gt; keys =&gt;
+  pipe(...map(fn)(keys))</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="encriptando">Encriptando</h3></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Esta função recebe uma chave e devolve uma função para a encriptação.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> encryptRounds = keys =&gt;
+  pipe(</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O primeiro round recebe a primeira chave e é servido por último.</p></div></div><div class="code"><div class="wrapper">    firstRound(keys[<span class="hljs-number">0</span>]),</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Os rounds do meio são aplicados com a função auxiliar applyRounds,
+pra cada chave, um round, no caso keys.slice(1, -1) entrega 9 chaves.</p></div></div><div class="code"><div class="wrapper">    applyRounds(middleRound)(keys.slice(<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>)),</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O último round é servido primeiro, ele recebe a última chave.</p></div></div><div class="code"><div class="wrapper">    lastRound(keys[keys.length-<span class="hljs-number">1</span>]),
+    Buffer.from
+  )</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>A encriptação é uma composição com a saída de <code>encryptRounds</code>.
+Essa composição recebe o texto plano e serve encriptado</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> encrypt = key =&gt;
+  encryptRounds(</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>expandKey</code> usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
+em um array com 11 chaves, sendo a primeira a chave original, e as demais são cálculos
+a partir da primeira. <a href="expandKey.html">Essa parte do código também está totalmente comentada</a></p></div></div><div class="code"><div class="wrapper">    expandKey(key)
+  )</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="decriptando">Decriptando</h3></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Essa função é bem parecida com a <code>encrypRounds</code> em sua estrutura.
+Ela usa as versões inversas dos rounds e as chaves expandidas são servidas de forma reversa.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> decryptRounds = keys =&gt;
+  pipe(
+    firstRoundInv(keys[<span class="hljs-number">0</span>]),
+    applyRounds(middleRoundInv)(keys.slice(<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>)),
+    lastRoundInv(keys[keys.length-<span class="hljs-number">1</span>]),
+    Buffer.from
+  )</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O processo de decriptação é idêntico ao de encriptação, porém utilizando o <code>decryptRounds</code>
+para a composição.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> decrypt = key =&gt;
+  decryptRounds(
+    expandKey(key).reverse()
+  )
+
+
+<span class="hljs-built_in">module</span>.exports = { decrypt, encrypt }</div></div></div></div></body></html>

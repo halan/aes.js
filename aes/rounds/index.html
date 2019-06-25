@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><title>aes/rounds/index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="aes/rounds/index"><meta name="groc-project-path" content="src/aes/rounds/index.js"><meta name="groc-github-url" content="https://github.com/halan/aes-es6"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/halan/aes-es6/blob/master/src/aes/rounds/index.js">src/aes/rounds/index.js</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h2 id="resumo">Resumo</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Aqui basicamente eu organizei as etapas de encriptação.
+A primeira e a última rodada são diferentes das demais, assim,
+criei <code>firstRound</code>, <code>middleRound</code> e <code>lastRound</code>.
+E também suas versões invertidas para decriptação.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> { pipe } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../utils'</span>)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>São 4 as etapas de encriptação (e seus inversos!)</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> { subBytes, subBytesInv } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./subBytes'</span>)
+<span class="hljs-keyword">const</span> { shiftRows, shiftRowsInv } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./shiftRows'</span>)
+<span class="hljs-keyword">const</span> { mixColumns, mixColumnsInv } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./mixColumns'</span>)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Lembrando: <code>addRoundKey</code> é <em>comutativa</em>, portanto não há versão invertida dela.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> { addRoundKey } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./addRoundKey'</span>)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="rounds-de-encriptao">Rounds de encriptação</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Os demais rounds, exceto o último, o <code>addRoundKey</code> é aplicado sobre
+um pipe de <code>mixColumns( shiftRows( subBytes ))</code>.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> middleRound = key =&gt;
+  pipe(
+    subBytes,
+    shiftRows,
+    mixColumns,
+    addRoundKey(key)
+  )</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O último round não utiliza a etapa <code>mixColumns</code></p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> lastRound = key =&gt;
+ pipe(
+    subBytes,
+    shiftRows,</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>aqui não tem mixColumns :)</p></div></div><div class="code"><div class="wrapper">    addRoundKey(key),
+ )</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="rounds-de-decriptao">Rounds de decriptação</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>As composições a seguir utilizam as versões invertidas das operações.
+Além disso são aplicados em ordem inversa cada round em si e o último round passa a ser análogo ao primeiro.</p></div></div><div class="code"><div class="wrapper"><span class="hljs-keyword">const</span> firstRoundInv = key =&gt;
+  pipe(
+    addRoundKey(key),</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>aqui não tem mixColumnsInv</p></div></div><div class="code"><div class="wrapper">    shiftRowsInv,
+    subBytesInv
+  )
+
+<span class="hljs-keyword">const</span> middleRoundInv = key =&gt;
+  pipe(
+    addRoundKey(key),
+    mixColumnsInv,
+    shiftRowsInv,
+    subBytesInv
+  )
+
+
+<span class="hljs-built_in">module</span>.exports = {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Funções para encriptação</p></div></div><div class="code"><div class="wrapper">  subBytes,
+  shiftRows,
+  mixColumns,
+  addRoundKey,</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Funções para decriptação. São as mesmas de encriptação em suas formas invertidas.
+O <code>addRoundKey</code> não tem forma invertida, pois é uma função <em>comutativa</em></p></div></div><div class="code"><div class="wrapper">  mixColumnsInv,
+  subBytesInv,
+  shiftRowsInv,</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O primeiro round da encriptação é utilizado apenas o <code>addRoundKey</code></p></div></div><div class="code"><div class="wrapper">  firstRound: addRoundKey,
+  middleRound,
+  lastRound,</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>O último round da encriptação é utilizado apenas o <code>addRoundKey</code></p></div></div><div class="code"><div class="wrapper">  firstRoundInv,
+  middleRoundInv,
+  lastRoundInv: addRoundKey
+}</div></div></div></div></body></html>

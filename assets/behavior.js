@@ -6,132 +6,10 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
 
   tableOfContents = [
     {
-      "type": "file",
-      "data": {
-        "language": {
-          "nameMatchers": [".js"],
-          "pygmentsLexer": "javascript",
-          "multiLineComment": ["/*", "*", "*/"],
-          "singleLineComment": ["//"],
-          "ignorePrefix": "}",
-          "foldPrefix": "^",
-          "name": "JavaScript"
-        },
-        "sourcePath": "/home/halan/Code/aes-es6/src/index.js",
-        "projectPath": "src/index.js",
-        "targetPath": "index",
-        "pageTitle": "index",
-        "title": "index"
-      },
-      "depth": 1,
-      "outline": [
-        {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Aviso",
-            "slug": "aviso"
-          },
-          "depth": 2
-        }, {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Resumo",
-            "slug": "resumo"
-          },
-          "depth": 2,
-          "children": [
-            {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Importando os módulos",
-                "slug": "importando-os-mdulos"
-              },
-              "depth": 3
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Encriptando",
-                "slug": "encriptando"
-              },
-              "depth": 3
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Decriptando",
-                "slug": "decriptando"
-              },
-              "depth": 3
-            }
-          ]
-        }
-      ]
-    }, {
-      "type": "file",
-      "data": {
-        "language": {
-          "nameMatchers": [".js"],
-          "pygmentsLexer": "javascript",
-          "multiLineComment": ["/*", "*", "*/"],
-          "singleLineComment": ["//"],
-          "ignorePrefix": "}",
-          "foldPrefix": "^",
-          "name": "JavaScript"
-        },
-        "sourcePath": "/home/halan/Code/aes-es6/src/expandKey.js",
-        "projectPath": "src/expandKey.js",
-        "targetPath": "expandKey",
-        "pageTitle": "expandKey",
-        "title": "expandKey"
-      },
-      "depth": 1,
-      "outline": [
-        {
-          "type": "heading",
-          "data": {
-            "level": 2,
-            "title": "Expansão das chaves",
-            "slug": "expanso-das-chaves"
-          },
-          "depth": 2,
-          "children": [
-            {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Importações",
-                "slug": "importaes"
-              },
-              "depth": 3
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Constante Rcon",
-                "slug": "constante-rcon"
-              },
-              "depth": 3
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 3,
-                "title": "Geração das chaves",
-                "slug": "gerao-das-chaves"
-              },
-              "depth": 3
-            }
-          ]
-        }
-      ]
-    }, {
       "type": "folder",
       "data": {
-        "path": "steps",
-        "title": "steps"
+        "path": "aes",
+        "title": "aes"
       },
       "depth": 1,
       "children": [
@@ -147,31 +25,11 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
               "foldPrefix": "^",
               "name": "JavaScript"
             },
-            "sourcePath": "/home/halan/Code/aes-es6/src/steps/addRoundKey.js",
-            "projectPath": "src/steps/addRoundKey.js",
-            "targetPath": "steps/addRoundKey",
-            "pageTitle": "steps/addRoundKey",
-            "title": "addRoundKey"
-          },
-          "depth": 2,
-          "outline": []
-        }, {
-          "type": "file",
-          "data": {
-            "language": {
-              "nameMatchers": [".js"],
-              "pygmentsLexer": "javascript",
-              "multiLineComment": ["/*", "*", "*/"],
-              "singleLineComment": ["//"],
-              "ignorePrefix": "}",
-              "foldPrefix": "^",
-              "name": "JavaScript"
-            },
-            "sourcePath": "/home/halan/Code/aes-es6/src/steps/index.js",
-            "projectPath": "src/steps/index.js",
-            "targetPath": "steps/index",
-            "pageTitle": "steps/index",
-            "title": "index"
+            "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/expandKey.js",
+            "projectPath": "src/aes/expandKey.js",
+            "targetPath": "aes/expandKey",
+            "pageTitle": "aes/expandKey",
+            "title": "expandKey"
           },
           "depth": 2,
           "outline": [
@@ -179,26 +37,37 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
               "type": "heading",
               "data": {
                 "level": 2,
-                "title": "Resumo",
-                "slug": "resumo"
+                "title": "Expansão das chaves",
+                "slug": "expanso-das-chaves"
               },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Rounds de encriptação",
-                "slug": "rounds-de-encriptao"
-              },
-              "depth": 2
-            }, {
-              "type": "heading",
-              "data": {
-                "level": 2,
-                "title": "Rounds de decriptação",
-                "slug": "rounds-de-decriptao"
-              },
-              "depth": 2
+              "depth": 2,
+              "children": [
+                {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Importações",
+                    "slug": "importaes"
+                  },
+                  "depth": 3
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Constante Rcon",
+                    "slug": "constante-rcon"
+                  },
+                  "depth": 3
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Geração das chaves",
+                    "slug": "gerao-das-chaves"
+                  },
+                  "depth": 3
+                }
+              ]
             }
           ]
         }, {
@@ -213,54 +82,195 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
               "foldPrefix": "^",
               "name": "JavaScript"
             },
-            "sourcePath": "/home/halan/Code/aes-es6/src/steps/mixColumns.js",
-            "projectPath": "src/steps/mixColumns.js",
-            "targetPath": "steps/mixColumns",
-            "pageTitle": "steps/mixColumns",
-            "title": "mixColumns"
+            "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/index.js",
+            "projectPath": "src/aes/index.js",
+            "targetPath": "aes/index",
+            "pageTitle": "aes/index",
+            "title": "index"
           },
           "depth": 2,
-          "outline": []
+          "outline": [
+            {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Aviso",
+                "slug": "aviso"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Resumo",
+                "slug": "resumo"
+              },
+              "depth": 2,
+              "children": [
+                {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Importando os módulos",
+                    "slug": "importando-os-mdulos"
+                  },
+                  "depth": 3
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Encriptando",
+                    "slug": "encriptando"
+                  },
+                  "depth": 3
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "Decriptando",
+                    "slug": "decriptando"
+                  },
+                  "depth": 3
+                }
+              ]
+            }
+          ]
         }, {
-          "type": "file",
+          "type": "folder",
           "data": {
-            "language": {
-              "nameMatchers": [".js"],
-              "pygmentsLexer": "javascript",
-              "multiLineComment": ["/*", "*", "*/"],
-              "singleLineComment": ["//"],
-              "ignorePrefix": "}",
-              "foldPrefix": "^",
-              "name": "JavaScript"
-            },
-            "sourcePath": "/home/halan/Code/aes-es6/src/steps/shiftRows.js",
-            "projectPath": "src/steps/shiftRows.js",
-            "targetPath": "steps/shiftRows",
-            "pageTitle": "steps/shiftRows",
-            "title": "shiftRows"
+            "path": "aes/rounds",
+            "title": "rounds"
           },
           "depth": 2,
-          "outline": []
-        }, {
-          "type": "file",
-          "data": {
-            "language": {
-              "nameMatchers": [".js"],
-              "pygmentsLexer": "javascript",
-              "multiLineComment": ["/*", "*", "*/"],
-              "singleLineComment": ["//"],
-              "ignorePrefix": "}",
-              "foldPrefix": "^",
-              "name": "JavaScript"
-            },
-            "sourcePath": "/home/halan/Code/aes-es6/src/steps/subBytes.js",
-            "projectPath": "src/steps/subBytes.js",
-            "targetPath": "steps/subBytes",
-            "pageTitle": "steps/subBytes",
-            "title": "subBytes"
-          },
-          "depth": 2,
-          "outline": []
+          "children": [
+            {
+              "type": "file",
+              "data": {
+                "language": {
+                  "nameMatchers": [".js"],
+                  "pygmentsLexer": "javascript",
+                  "multiLineComment": ["/*", "*", "*/"],
+                  "singleLineComment": ["//"],
+                  "ignorePrefix": "}",
+                  "foldPrefix": "^",
+                  "name": "JavaScript"
+                },
+                "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/rounds/addRoundKey.js",
+                "projectPath": "src/aes/rounds/addRoundKey.js",
+                "targetPath": "aes/rounds/addRoundKey",
+                "pageTitle": "aes/rounds/addRoundKey",
+                "title": "addRoundKey"
+              },
+              "depth": 3,
+              "outline": []
+            }, {
+              "type": "file",
+              "data": {
+                "language": {
+                  "nameMatchers": [".js"],
+                  "pygmentsLexer": "javascript",
+                  "multiLineComment": ["/*", "*", "*/"],
+                  "singleLineComment": ["//"],
+                  "ignorePrefix": "}",
+                  "foldPrefix": "^",
+                  "name": "JavaScript"
+                },
+                "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/rounds/index.js",
+                "projectPath": "src/aes/rounds/index.js",
+                "targetPath": "aes/rounds/index",
+                "pageTitle": "aes/rounds/index",
+                "title": "index"
+              },
+              "depth": 3,
+              "outline": [
+                {
+                  "type": "heading",
+                  "data": {
+                    "level": 2,
+                    "title": "Resumo",
+                    "slug": "resumo"
+                  },
+                  "depth": 2
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 2,
+                    "title": "Rounds de encriptação",
+                    "slug": "rounds-de-encriptao"
+                  },
+                  "depth": 2
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 2,
+                    "title": "Rounds de decriptação",
+                    "slug": "rounds-de-decriptao"
+                  },
+                  "depth": 2
+                }
+              ]
+            }, {
+              "type": "file",
+              "data": {
+                "language": {
+                  "nameMatchers": [".js"],
+                  "pygmentsLexer": "javascript",
+                  "multiLineComment": ["/*", "*", "*/"],
+                  "singleLineComment": ["//"],
+                  "ignorePrefix": "}",
+                  "foldPrefix": "^",
+                  "name": "JavaScript"
+                },
+                "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/rounds/mixColumns.js",
+                "projectPath": "src/aes/rounds/mixColumns.js",
+                "targetPath": "aes/rounds/mixColumns",
+                "pageTitle": "aes/rounds/mixColumns",
+                "title": "mixColumns"
+              },
+              "depth": 3,
+              "outline": []
+            }, {
+              "type": "file",
+              "data": {
+                "language": {
+                  "nameMatchers": [".js"],
+                  "pygmentsLexer": "javascript",
+                  "multiLineComment": ["/*", "*", "*/"],
+                  "singleLineComment": ["//"],
+                  "ignorePrefix": "}",
+                  "foldPrefix": "^",
+                  "name": "JavaScript"
+                },
+                "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/rounds/shiftRows.js",
+                "projectPath": "src/aes/rounds/shiftRows.js",
+                "targetPath": "aes/rounds/shiftRows",
+                "pageTitle": "aes/rounds/shiftRows",
+                "title": "shiftRows"
+              },
+              "depth": 3,
+              "outline": []
+            }, {
+              "type": "file",
+              "data": {
+                "language": {
+                  "nameMatchers": [".js"],
+                  "pygmentsLexer": "javascript",
+                  "multiLineComment": ["/*", "*", "*/"],
+                  "singleLineComment": ["//"],
+                  "ignorePrefix": "}",
+                  "foldPrefix": "^",
+                  "name": "JavaScript"
+                },
+                "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/aes/rounds/subBytes.js",
+                "projectPath": "src/aes/rounds/subBytes.js",
+                "targetPath": "aes/rounds/subBytes",
+                "pageTitle": "aes/rounds/subBytes",
+                "title": "subBytes"
+              },
+              "depth": 3,
+              "outline": []
+            }
+          ]
         }
       ]
     }, {
@@ -275,7 +285,47 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "foldPrefix": "^",
           "name": "JavaScript"
         },
-        "sourcePath": "/home/halan/Code/aes-es6/src/utils.js",
+        "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/opModes.js",
+        "projectPath": "src/opModes.js",
+        "targetPath": "opModes",
+        "pageTitle": "opModes",
+        "title": "opModes"
+      },
+      "depth": 1,
+      "outline": []
+    }, {
+      "type": "file",
+      "data": {
+        "language": {
+          "nameMatchers": [".js"],
+          "pygmentsLexer": "javascript",
+          "multiLineComment": ["/*", "*", "*/"],
+          "singleLineComment": ["//"],
+          "ignorePrefix": "}",
+          "foldPrefix": "^",
+          "name": "JavaScript"
+        },
+        "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/padding.js",
+        "projectPath": "src/padding.js",
+        "targetPath": "padding",
+        "pageTitle": "padding",
+        "title": "padding"
+      },
+      "depth": 1,
+      "outline": []
+    }, {
+      "type": "file",
+      "data": {
+        "language": {
+          "nameMatchers": [".js"],
+          "pygmentsLexer": "javascript",
+          "multiLineComment": ["/*", "*", "*/"],
+          "singleLineComment": ["//"],
+          "ignorePrefix": "}",
+          "foldPrefix": "^",
+          "name": "JavaScript"
+        },
+        "sourcePath": "/Users/hpinheiro/Code/aes-es6/src/utils.js",
         "projectPath": "src/utils.js",
         "targetPath": "utils",
         "pageTitle": "utils",
