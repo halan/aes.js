@@ -7,6 +7,7 @@
 use crate::types::Block;
 use crate::utils::permute;
 
+#[rustfmt::skip]
 const SHIFT_ROWS: [usize; 16] = [
      0,  5, 10, 15,
      4,  9, 14,  3,
@@ -14,6 +15,7 @@ const SHIFT_ROWS: [usize; 16] = [
     12,  1,  6, 11,
 ];
 
+#[rustfmt::skip]
 const SHIFT_ROWS_INV: [usize; 16] = [
      0, 13, 10,  7,
      4,  1, 14, 11,

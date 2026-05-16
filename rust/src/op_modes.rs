@@ -37,9 +37,7 @@ impl BlockCipher for Aes128 {
 /// Converte um chunk de slice (`&[u8]` de tamanho 16) para um [`Block`].
 /// Infalível porque os iteradores de chunks usados aqui garantem o tamanho.
 fn to_block(chunk: &[u8]) -> Block {
-    chunk
-        .try_into()
-        .expect("chunks_exact(16) yields 16 bytes")
+    chunk.try_into().expect("chunks_exact(16) yields 16 bytes")
 }
 
 // ## CBC
