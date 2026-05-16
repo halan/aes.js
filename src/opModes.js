@@ -40,7 +40,7 @@ const cbcInv = (decrypt, iv) =>
 const ecb = encrypt =>
   pipe(
     pksc7(16),
-    inBlocks(16),
+    partition(16),
     map(encrypt),
     flat,
     Buffer.from
@@ -48,8 +48,8 @@ const ecb = encrypt =>
 
 const ecbInv = decrypt =>
   pipe(
-    inBlocks(16),
-    map(encrypt),
+    partition(16),
+    map(decrypt),
     flat,
     pksc7Inv,
     Buffer.from
