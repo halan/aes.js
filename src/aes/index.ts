@@ -16,9 +16,12 @@ import type { Block, BlockLike, Key, RoundKeys } from '../types.ts'
 
 type Round = (key: Block) => (state: Block) => Block
 
-// Compõe uma sequência de rounds (um por chave) via `reduce` direto. Não
-// usamos `pipe(...keys.map(...))` aqui porque o spread variádico defeats a
-// resolução das overloads de `pipe`.
+// Compõe uma sequência de rounds — um por chave — via `reduce` direto. Não
+// usamos `pipe(...keys.map(fn))` aqui porque o spread variádico apaga a
+// aridade do array no nível de tipo, e as overloads de `pipe` (fixas em até
+// 6 funções) deixam de bater: o TS cai na assinatura `Fn<unknown, unknown>[]`
+// e perdemos a propagação do tipo `Block` ao longo da cadeia. O `reduce`
+// preserva `Block → Block` em cada passo.
 const applyRounds = (fn: Round) => (keys: readonly Block[]) =>
   (input: Block): Block =>
     keys.reduce<Block>((acc, key) => fn(key)(acc), input)
