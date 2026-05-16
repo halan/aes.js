@@ -66,3 +66,44 @@ describe('AES ECB', () => {
     ).to.be.equal(plain)
   })
 })
+
+describe('round-trip on non-block-aligned plaintexts', () => {
+  const key = Buffer.from('DxVxyUfZ6FkMt63Wr39nmA==', 'base64')
+  const iv  = Buffer.from('U2FsdGVkX182re6Lw5wOZQ==', 'base64')
+
+  const cases = [
+    ['empty', ''],
+    ['shorter than a block', 'short'],
+    ['one byte less than a block', 'fifteen bytes!!'],
+    ['exactly two blocks', 'thirty-two bytes for two blocks!'],
+    ['larger than a block', 'this plaintext is longer than sixteen bytes'],
+  ]
+
+  cases.forEach(([label, plain]) => {
+    it(`CBC round-trip: ${label} (${Buffer.byteLength(plain)} bytes)`, () => {
+      const ct = cbc(encrypt(key), iv)(plain)
+      expect(cbcInv(decrypt(key), iv)(ct).toString('utf8')).to.be.equal(plain)
+    })
+
+    it(`ECB round-trip: ${label} (${Buffer.byteLength(plain)} bytes)`, () => {
+      const ct = ecb(encrypt(key))(plain)
+      expect(ecbInv(decrypt(key))(ct).toString('utf8')).to.be.equal(plain)
+    })
+  })
+})
+
+describe('CBC tamper detection (via padding validation)', () => {
+  const key = Buffer.from('DxVxyUfZ6FkMt63Wr39nmA==', 'base64')
+  const iv  = Buffer.from('U2FsdGVkX182re6Lw5wOZQ==', 'base64')
+  const plain = "Hola mundo!!!!!!"
+
+  it('rejects ciphertext whose last block was tampered with (bad padding)', () => {
+    const ct = Buffer.from(cbc(encrypt(key), iv)(plain))
+    ct[ct.length - 1] ^= 0xff
+    expect(() => cbcInv(decrypt(key), iv)(ct)).to.throw(/PKCS#7/)
+  })
+
+  it('rejects empty ciphertext', () => {
+    expect(() => cbcInv(decrypt(key), iv)(Buffer.alloc(0))).to.throw(/PKCS#7/)
+  })
+})
