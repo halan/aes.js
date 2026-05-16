@@ -14,6 +14,6 @@ const shiftRowsInv = b =>
     8,  5,  2, 15,
    12,  9,  6,  3].map( i => b[i] )
 
-module.exports = {
+export {
   shiftRows, shiftRowsInv
 }

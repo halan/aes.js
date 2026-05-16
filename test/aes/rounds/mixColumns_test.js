@@ -1,5 +1,5 @@
-const { expect } = require('chai')
-const { mixColumns, mixColumnsInv } = require('aes/rounds')
+import { expect } from 'chai'
+import { mixColumns, mixColumnsInv } from '#aes/rounds/index'
 
 describe('mixColumns', () => {
   it('mix columns', () => {

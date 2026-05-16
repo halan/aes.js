@@ -52,6 +52,6 @@ const subBytes = buffer =>
 const subBytesInv = buffer =>
   buffer.map( b => SBOX_INV[b] )
 
-module.exports = {
+export {
   subBytes, subBytesInv
 }

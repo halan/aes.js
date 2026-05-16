@@ -5,14 +5,14 @@
 // criei `firstRound`, `middleRound` e `lastRound`.
 // E também suas versões invertidas para decriptação.
 
-const { pipe } = require('../../utils')
+import { pipe } from '../../utils.js'
 
 // São 4 as etapas de encriptação (e seus inversos!)
-const { subBytes, subBytesInv } = require('./subBytes')
-const { shiftRows, shiftRowsInv } = require('./shiftRows')
-const { mixColumns, mixColumnsInv } = require('./mixColumns')
+import { subBytes, subBytesInv } from './subBytes.js'
+import { shiftRows, shiftRowsInv } from './shiftRows.js'
+import { mixColumns, mixColumnsInv } from './mixColumns.js'
 // Lembrando: `addRoundKey` é *comutativa*, portanto não há versão invertida dela.
-const { addRoundKey } = require('./addRoundKey')
+import { addRoundKey } from './addRoundKey.js'
 
 // ## Rounds de encriptação
 
@@ -56,7 +56,7 @@ const middleRoundInv = key =>
   )
 
 
-module.exports = {
+export {
   // Funções para encriptação
   subBytes,
   shiftRows,
@@ -69,12 +69,12 @@ module.exports = {
   shiftRowsInv,
 
   // O primeiro round da encriptação é utilizado apenas o `addRoundKey`
-  firstRound: addRoundKey,
+  addRoundKey as firstRound,
   middleRound,
   lastRound,
 
   // O último round da encriptação é utilizado apenas o `addRoundKey`
   firstRoundInv,
   middleRoundInv,
-  lastRoundInv: addRoundKey
+  addRoundKey as lastRoundInv
 }

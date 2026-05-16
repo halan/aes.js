@@ -2,6 +2,6 @@
 //
 // `addRoundKey` é apenas um xor byte a byte
 
-module.exports = {
-  addRoundKey: require('../../utils').xor
-}
+import { xor } from '../../utils.js'
+
+export const addRoundKey = xor

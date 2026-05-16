@@ -3,15 +3,28 @@
   "version": "1.0.0",
   "description": "Small AES encryption for study purpose. Feat. ES6 and Functional Programming. Explanations detaileds in pt-BR: http://halan.github.com/aes-es6",
   "main": "./src/index.js",
+  "type": "module",
+  "imports": {
+    "#aes": "./src/aes/index.js",
+    "#aes/*": "./src/aes/*.js",
+    "#opModes": "./src/opModes.js",
+    "#padding": "./src/padding.js",
+    "#utils": "./src/utils.js"
+  },
   "scripts": {
-    "doc": "groc",
-    "test": "NODE_PATH=./src npx mocha test/*_test.js test/**/*_test.js test/**/**/*_test.js"
+    "doc": "docco src/*.js src/**/*.js src/**/**/*.js",
+    "test": "mocha 'test/**/*_test.js'"
   },
   "author": "Halan Pinheiro",
   "license": "ISC",
   "devDependencies": {
-    "chai": "^3.5.0",
-    "groc": "^0.8.0",
-    "mocha": "^3.0.2"
+    "chai": "^5.1.2",
+    "docco": "^0.9.1",
+    "mocha": "^11.0.1"
+  },
+  "overrides": {
+    "diff": "^9.0.0",
+    "serialize-javascript": "^7.0.5",
+    "glob": "^11.0.0"
   }
 }

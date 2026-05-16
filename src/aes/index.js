@@ -25,24 +25,24 @@
 // No AES utiliza-se 9 rodadas mais 2.
 // Sendo a primeira apenas um xor com a chave
 // e a última não tem a etapa `mixColumns`.
-const  {
+import {
   firstRound,
   middleRound,
   lastRound,
-  
+
   firstRoundInv,
   middleRoundInv,
   lastRoundInv
-} = require('./rounds')
+} from './rounds/index.js'
 
-const { pipe, reduce, map } = require('../utils')
+import { pipe, reduce, map } from '../utils.js'
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
 // É nesse algoritmo que pegamos a chave inicial devolvemos 10 novas chaves.
 // A chave inicial mais as novas 10 chaves formam
 // as 11 chaves necessárias para as 11 rodadas da encriptação.
-const expandKey = require('./expandKey')
+import expandKey from './expandKey.js'
 
 // Está é uma função autiliar que aplica rounds iguais em sequência de acordo com uma
 // coleção da chaves. Vamos utilizar isso para executar 9 rounds com as 9 chaves das 11 (as do meio).
@@ -95,4 +95,4 @@ const decrypt = key =>
   )
 
 
-module.exports = { decrypt, encrypt }
+export { decrypt, encrypt }

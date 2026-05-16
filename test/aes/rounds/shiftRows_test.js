@@ -1,5 +1,5 @@
-const { expect } = require('chai')
-const { shiftRows, shiftRowsInv } = require('aes/rounds')
+import { expect } from 'chai'
+import { shiftRows, shiftRowsInv } from '#aes/rounds/index'
 
 describe('shiftRows', () => {
   it('shift rows', () => {

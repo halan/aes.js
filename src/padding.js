@@ -16,4 +16,4 @@ const pksc7Inv = input => {
   return inputBuffer.slice(0, -size)
 }
 
-module.exports = { pksc7, pksc7Inv }
+export { pksc7, pksc7Inv }

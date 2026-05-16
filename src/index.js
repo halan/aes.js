@@ -1,5 +1,4 @@
-const AES = require('./aes');
-const OpModes = require('./opModes');
+import * as AES from './aes/index.js'
+import * as OpModes from './opModes.js'
 
-
-module.exports = { AES, OpModes }
+export { AES, OpModes }

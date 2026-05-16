@@ -1,7 +1,7 @@
-const { expect } = require('chai')
-const { encrypt, decrypt } = require('aes')
-const { cbc, cbcInv } = require('opModes');
-const crypto = require('crypto');
+import { expect } from 'chai'
+import { encrypt, decrypt } from '#aes'
+import { cbc, cbcInv } from '#opModes'
+import crypto from 'node:crypto'
 
 describe('AES CBC', () => {
   const plain = "Hola mundo!!!!!!"

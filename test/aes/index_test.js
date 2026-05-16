@@ -1,5 +1,5 @@
-const { expect } = require('chai')
-const { encrypt, decrypt } = require('aes')
+import { expect } from 'chai'
+import { encrypt, decrypt } from '#aes'
 
 describe('AES', () => {
   const plain =     Buffer.from("Hola mundo!!!!!!")

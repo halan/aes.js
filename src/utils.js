@@ -61,7 +61,7 @@ const chainBlocksInv = fn => ini =>
 
 
 
-module.exports = {
+export {
   lastWord,
   partition,
   splitInWords,

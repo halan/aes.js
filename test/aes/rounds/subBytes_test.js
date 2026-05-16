@@ -1,5 +1,5 @@
-const { expect } = require('chai')
-const { subBytes, subBytesInv } = require('aes/rounds')
+import { expect } from 'chai'
+import { subBytes, subBytesInv } from '#aes/rounds/index'
 
 describe('subBytes', () => {
   it('sub bytes', () => {

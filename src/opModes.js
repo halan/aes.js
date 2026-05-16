@@ -1,4 +1,4 @@
-const {
+import {
   chainBlocks,
   chainBlocksInv,
   flat,
@@ -6,8 +6,8 @@ const {
   partition,
   pipe,
   map
-} = require('./utils')
-const { pksc7, pksc7Inv } = require('./padding')
+} from './utils.js'
+import { pksc7, pksc7Inv } from './padding.js'
 
 const cbc = (encrypt, iv) =>
   pipe(
@@ -55,7 +55,7 @@ const ecbInv = decrypt =>
     Buffer.from
   )
 
-module.exports = {
+export {
   cbc,
   cbcInv,
   ecb,

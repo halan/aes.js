@@ -3,10 +3,10 @@
 // ### Importações
 
 // Importa o passo `subBytes` que faz a substituição com a S-Box
-const { subBytes } = require('./rounds/subBytes')
+import { subBytes } from './rounds/subBytes.js'
 
 // Importa xor, que recebe duas arrays de números e aplica um xor em cada elemento correspondente.
-const {
+import {
   xor,
   reverse,
   pipe,
@@ -16,7 +16,7 @@ const {
   lastWord,
   chainBlocks,
   splitInWords
-} = require('../utils')
+} from '../utils.js'
 
 // ### Constante Rcon
 
@@ -83,7 +83,7 @@ const generate = (initial, key) =>
 
 
 // Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!
-module.exports = key =>
+export default key =>
   // Passo um reduce sobre os RCONS, e para cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada.
   pipe(

@@ -1,5 +1,5 @@
-const { expect } = require('chai')
-const { addRoundKey } = require('aes/rounds')
+import { expect } from 'chai'
+import { addRoundKey } from '#aes/rounds/index'
 
 describe('addRoundKey', () => {
   it('add round key', () => {
