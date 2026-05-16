@@ -16,16 +16,21 @@ The project is ESM (`"type": "module"` in package.json). Tests import the source
 
 ## Architecture
 
-Entry point `src/index.js` exposes two namespaces: `AES` (raw block cipher) and `OpModes` (block-mode wrappers + padding). They are composed by the caller — `OpModes.cbc(AES.encrypt(key), iv)` returns a function from plaintext to ciphertext.
+Entry point `src/index.js` exposes two namespaces: `AES` (raw block cipher) and `OpModes` (block-mode wrappers + padding). Op-mode signatures are fully curried — `OpModes.cbc(AES.encrypt(key))(iv)(plaintext)`.
 
 ### Functional pipeline style
 
 Everything is built on `pipe(...fns)(x)` from `src/utils.js`. Each AES step is a pure function `Buffer → Buffer` (or array → array), composed left-to-right. When reading or modifying code, trace data flow through `pipe(...)` rather than looking for imperative state. Helpers in `utils.js` worth knowing:
 
-- `pipe`, `map`, `reduce`, `flat`, `reverse` — pipe-friendly curried versions
-- `partition(n)` / `splitInWords` — group a flat array into chunks (words = 4 bytes)
-- `xor(left)(right)` — byte-wise XOR
-- `chainBlocks(fn)(ini)` / `chainBlocksInv` — fold where each step's output feeds the next; used both by CBC and by `expandKey`
+- Combinators: `id`, `constant` (K), `dup` (W), `flip`, `compose`, `pipe`
+- List decomposition: `head`, `tail`, `init`, `last`, `middle` (≡ `init ∘ tail`)
+- Standard curried versions: `map`, `reduce`, `flat`, `reverse`, `permute`
+- `partition(n)` / `splitInWords` — recursive chunking (words = 4 bytes)
+- `xor(left)(right)` — byte-wise XOR; throws on mismatched lengths
+- `mapAccumL(fn)(ini)(arr)` — Haskell-style stateful map; carries an accumulator, records a (possibly different) value per element. Used by CBC decrypt, where the propagated state is the previous *ciphertext* block.
+- `scanl(fn)(ini)(arr)` — like `reduce` but returns every intermediate result. Defined as `mapAccumL(state => x => dup(fn(state)(x)))` — the W-combinator captures the "state and output coincide" case. Used by CBC encrypt and by the AES key schedule.
+
+`dup(x) === [x, x]` returns two references to the *same* value; consumers must treat outputs as immutable.
 
 ### AES core (`src/aes/`)
 
@@ -36,12 +41,9 @@ Everything is built on `pipe(...fns)(x)` from `src/utils.js`. Each AES step is a
 
 ### Modes & padding (`src/opModes.js`, `src/padding.js`)
 
-`opModes.js` exports `ecb` / `ecbInv` / `cbc` / `cbcInv`. They take an `encrypt` (or `decrypt`) function — the curried `AES.encrypt(key)` — plus an IV for CBC, and return `Buffer → Buffer`. PKCS#7 (spelled `pksc7` in the code) is applied before encryption and stripped after decryption.
+`opModes.js` exports `ecb` / `ecbInv` / `cbc` / `cbcInv`, fully curried — e.g. `cbc(encrypt)(iv)(plaintext)`. PKCS#7 (spelled `pksc7` in the code) is applied before encryption; `pksc7Inv` validates the padding bytes after decryption and throws `Invalid PKCS#7 padding` on tamper / malformed input.
 
-Known rough edges to be aware of when working here (per the last commit message, padding validation is intentionally absent):
-
-- `pksc7Inv` trusts the last byte blindly — no validation of padding correctness
-- `ecbInv` in `opModes.js` calls `inBlocks(16)` and `encrypt` — neither is in scope (likely a bug from the CBC refactor); ECB decrypt is not exercised by tests
+ECB is exported but explicitly didactic. Real callers should use CBC (with a MAC) or — preferably — a proper AEAD that this codebase intentionally does not implement.
 
 ### Tests (`test/`)
 

@@ -14,21 +14,21 @@ describe('AES CBC', () => {
     cipher.end()
     const encrypted = cipher.read()
 
-    expect(cbc(encrypt(key), iv)(plain).toString('base64'))
+    expect(cbc(encrypt(key))(iv)(plain).toString('base64'))
       .to.be.equal(encrypted.toString('base64')) 
   })
 
   it('should be able to decrypt from buffer', () => {
     const encrypted = Buffer.from('B5tTp68o8zNBgFDsL0muPKPo+OmcDhyuV6exLQJZFZE=', 'base64')
 
-    expect(cbcInv(decrypt(key), iv)(encrypted).toString('utf8'))
+    expect(cbcInv(decrypt(key))(iv)(encrypted).toString('utf8'))
       .to.be.equal(plain)
   })
 
   it('encrypt and decrypt will just return plain text again', () => {
     expect(
-      cbcInv(decrypt(key), iv)(
-        cbc(encrypt(key), iv)(plain)
+      cbcInv(decrypt(key))(iv)(
+        cbc(encrypt(key))(iv)(plain)
       ).toString('utf8')
     ).to.be.equal(plain)
   })
@@ -81,8 +81,8 @@ describe('round-trip on non-block-aligned plaintexts', () => {
 
   cases.forEach(([label, plain]) => {
     it(`CBC round-trip: ${label} (${Buffer.byteLength(plain)} bytes)`, () => {
-      const ct = cbc(encrypt(key), iv)(plain)
-      expect(cbcInv(decrypt(key), iv)(ct).toString('utf8')).to.be.equal(plain)
+      const ct = cbc(encrypt(key))(iv)(plain)
+      expect(cbcInv(decrypt(key))(iv)(ct).toString('utf8')).to.be.equal(plain)
     })
 
     it(`ECB round-trip: ${label} (${Buffer.byteLength(plain)} bytes)`, () => {
@@ -98,12 +98,12 @@ describe('CBC tamper detection (via padding validation)', () => {
   const plain = "Hola mundo!!!!!!"
 
   it('rejects ciphertext whose last block was tampered with (bad padding)', () => {
-    const ct = Buffer.from(cbc(encrypt(key), iv)(plain))
+    const ct = Buffer.from(cbc(encrypt(key))(iv)(plain))
     ct[ct.length - 1] ^= 0xff
-    expect(() => cbcInv(decrypt(key), iv)(ct)).to.throw(/PKCS#7/)
+    expect(() => cbcInv(decrypt(key))(iv)(ct)).to.throw(/PKCS#7/)
   })
 
   it('rejects empty ciphertext', () => {
-    expect(() => cbcInv(decrypt(key), iv)(Buffer.alloc(0))).to.throw(/PKCS#7/)
+    expect(() => cbcInv(decrypt(key))(iv)(Buffer.alloc(0))).to.throw(/PKCS#7/)
   })
 })

@@ -118,38 +118,25 @@ const G14 =
    0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
    0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d]
 
-// Cálculo de difusão de coluna.
-const mixCol = ([a0, a1, a2, a3]) => ([
-  G2[a0] ^ G3[a1] ^     a2  ^    a3,
-     a0  ^ G2[a1] ^  G3[a2] ^    a3,
-     a0  ^    a1  ^  G2[a2] ^ G3[a3],
-  G3[a0] ^    a1  ^     a2  ^ G2[a3]
-])
+// Cálculo de difusão de uma coluna (direto) e seu inverso.
+const mixCol = ([a0, a1, a2, a3]) => [
+  G2[a0] ^ G3[a1] ^    a2  ^    a3,
+     a0  ^ G2[a1] ^ G3[a2] ^    a3,
+     a0  ^    a1  ^ G2[a2] ^ G3[a3],
+  G3[a0] ^    a1  ^    a2  ^ G2[a3]
+]
 
-// Montagem das colunas difusas.
-const mixColumns =
-  pipe(
-    splitInWords,
-    map(mixCol),
-    flat
-  )
-
-// Cálculo inverso da difusão de colunas.
-const mixColInv = ([a0, a1, a2, a3]) => ([
+const mixColInv = ([a0, a1, a2, a3]) => [
   G14[a0] ^ G9[a3] ^ G13[a2] ^ G11[a1],
   G14[a1] ^ G9[a0] ^ G13[a3] ^ G11[a2],
   G14[a2] ^ G9[a1] ^ G13[a0] ^ G11[a3],
   G14[a3] ^ G9[a2] ^ G13[a1] ^ G11[a0]
-])
+]
 
-// Montagem das colunas com a difusão *desfeita*.
-const mixColumnsInv =
-  pipe(
-    splitInWords,
-    map(mixColInv),
-    flat
-  )
+// Aplica a função de coluna sobre cada uma das 4 words que formam o estado.
+const mixWith = colFn => pipe(splitInWords, map(colFn), flat)
 
-export {
-  mixColumns, mixColumnsInv
-}
+const mixColumns    = mixWith(mixCol)
+const mixColumnsInv = mixWith(mixColInv)
+
+export { mixColumns, mixColumnsInv }

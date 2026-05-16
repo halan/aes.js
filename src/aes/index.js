@@ -1,98 +1,54 @@
 // ## Aviso
-
-// Este código não deve e nem tem pretensões de ser utilizado em produção.
-// Deve ser utilizado somente com fins didáticos. O foco é tanto mostrar um algoritmo criptográfico,
-// quanto exemplos de uso de programação funcional e ECMAScript6.
-// Caso esteja interessado em encriptar coisas em produção, utilize a 
-// [API do browser para isso](https://developer.mozilla.org/pt-BR/docs/Web/API/Web_Crypto_API) ou
-// bibliotecas especializadas em criptografia como 
-// por exemplo: [crypto.js](https://github.com/brix/crypto-js).
+//
+// Este código não tem pretensão de ser utilizado em produção. Foco didático:
+// mostrar o algoritmo criptográfico e exemplificar programação funcional em
+// ES6+. Para encriptação real, prefira a
+// [Web Crypto API](https://developer.mozilla.org/pt-BR/docs/Web/API/Web_Crypto_API)
+// ou bibliotecas como [crypto-js](https://github.com/brix/crypto-js).
 
 // ## Resumo
-
-// O objetivo desse arquivo é bem simples.
-// Organizar em alto nível a lógica básica do AES:
+//
+// Lógica de alto nível do AES-128:
 //   - Expandir a chave de 128 bits em 11 chaves do mesmo tamanho
-//   - Executar as etapas da primeira rodada com a chave original
-//   - Executar 9 vezes as etapas de embaralhamento com as respectivas chaves
-//   - Executar a rodada final com a última das 11 chaves
+//   - Aplicar a primeira rodada (apenas XOR com a chave original)
+//   - Aplicar 9 rodadas intermediárias com as 9 chaves do meio
+//   - Aplicar a rodada final (sem `mixColumns`) com a última chave
+//
+// [Descrição na Wikipedia](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Descri.C3.A7.C3.A3o_de_Cifra) ·
+// [Detalhes dos cálculos](http://pt.stackoverflow.com/a/43665)
 
-// [Descrição um pouco mais detalhada na Wikipedia...](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Descri.C3.A7.C3.A3o_de_Cifra)
-// [Aqui tem uma descrição um pouco melhor, principalmente dos cálculos...](http://pt.stackoverflow.com/a/43665)
-
-// ### Importando os módulos
-
-// No AES utiliza-se 9 rodadas mais 2.
-// Sendo a primeira apenas um xor com a chave
-// e a última não tem a etapa `mixColumns`.
 import {
-  firstRound,
-  middleRound,
-  lastRound,
-
-  firstRoundInv,
-  middleRoundInv,
-  lastRoundInv
+  firstRound, middleRound, lastRound,
+  firstRoundInv, middleRoundInv, lastRoundInv
 } from './rounds/index.js'
 
-import { pipe, reduce, map } from '../utils.js'
+import {
+  pipe, compose, map, head, last, middle, reverse
+} from '../utils.js'
 
-// Algoritmo de expansão de chave.
-// Nessa implementação suportamos apenas uma chave de 128 bits.
-// É nesse algoritmo que pegamos a chave inicial e devolvemos 10 novas chaves.
-// A chave inicial mais as novas 10 chaves formam
-// as 11 chaves necessárias para as 11 rodadas da encriptação.
 import expandKey from './expandKey.js'
 
-// Esta é uma função auxiliar que aplica rounds iguais em sequência de acordo com uma
-// coleção de chaves. Vamos utilizar isso para executar 9 rounds com as 9 chaves das 11 (as do meio).
-const applyRounds = fn => keys =>
-  pipe(...map(fn)(keys))
+// Compõe uma sequência de rounds — um por chave — num único pipe.
+const applyRounds = fn => keys => pipe(...map(fn)(keys))
 
-// ### Encriptando
-
-// Esta função recebe uma chave e devolve uma função para a encriptação.
-const encryptRounds = keys =>
+// A estrutura de cifrar e decifrar é a mesma: primeiro round com a primeira
+// chave, miolo com as do meio, último round com a última. A diferença é o
+// conjunto de transformações usadas. Construímos `cipher` como um *higher-order*
+// que monta o pipe a partir das três variantes de round.
+const cipher = (first, middleRnd, lastRnd) => keys =>
   pipe(
-    // O primeiro round recebe a primeira chave e é servido por último.
-    firstRound(keys[0]),
-    // Os rounds do meio são aplicados com a função auxiliar applyRounds,
-    // pra cada chave, um round, no caso keys.slice(1, -1) entrega 9 chaves.
-    applyRounds(middleRound)(keys.slice(1, -1)),
-    // O último round é servido primeiro, ele recebe a última chave.
-    lastRound(keys[keys.length-1]),
+    first(head(keys)),
+    applyRounds(middleRnd)(middle(keys)),
+    lastRnd(last(keys)),
     Buffer.from
   )
 
-// A encriptação é uma composição com a saída de `encryptRounds`.
-// Essa composição recebe o texto plano e serve encriptado
-const encrypt = key =>
-  encryptRounds(
-    // `expandKey` usa o algoritmo de expansão de chave, transformando uma chave de 128 bits
-    // em um array com 11 chaves, sendo a primeira a chave original, e as demais são cálculos
-    // a partir da primeira. [Essa parte do código também está totalmente comentada](expandKey.html)
-    expandKey(key)
-  )
+const encryptRounds = cipher(firstRound, middleRound, lastRound)
+const decryptRounds = cipher(firstRoundInv, middleRoundInv, lastRoundInv)
 
-
-// ### Decriptando
-
-// Essa função é bem parecida com a `encryptRounds` em sua estrutura.
-// Ela usa as versões inversas dos rounds e as chaves expandidas são servidas de forma reversa.
-const decryptRounds = keys =>
-  pipe(
-    firstRoundInv(keys[0]),
-    applyRounds(middleRoundInv)(keys.slice(1, -1)),
-    lastRoundInv(keys[keys.length-1]),
-    Buffer.from
-  )
-
-// O processo de decriptação é idêntico ao de encriptação, porém utilizando o `decryptRounds`
-// para a composição.
-const decrypt = key =>
-  decryptRounds(
-    expandKey(key).reverse()
-  )
-
+// `encrypt` é a composição direta: expandir a chave, aplicar os rounds.
+// `decrypt` é igual, mas com a lista de chaves expandidas invertida.
+const encrypt = compose(encryptRounds, expandKey)
+const decrypt = compose(decryptRounds, reverse, expandKey)
 
 export { decrypt, encrypt }

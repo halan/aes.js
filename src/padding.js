@@ -1,32 +1,34 @@
+// ## Padding PKCS#7
+//
+// PKCS#7 completa o último bloco com bytes cujo *valor* é o número de bytes
+// adicionados. Quando o input já está alinhado, adiciona-se um bloco inteiro
+// — assim a recuperação do plaintext fica sempre inequívoca.
 
-const pksc7 = target => input => {
-  const inputBuffer = Buffer.from(input)
-  const padLength = (target - inputBuffer.length % target || target)
-
-  return Buffer.from([
-    ...inputBuffer,
-    ...Buffer.from(Array(padLength).fill(padLength))
-  ])
-}
-
-// Bloco máximo suportado pelo AES (16 bytes). PKCS#7 válido sempre tem
-// `size` no intervalo [1, blockSize] e os `size` últimos bytes iguais a `size`.
-// Sem essa checagem, o algoritmo aceitaria padding arbitrário — abrindo a porta
-// para padding oracle attacks quando combinado com CBC sem MAC.
 const BLOCK_SIZE = 16
 
+const pksc7 = target => input => {
+  const buf = Buffer.from(input)
+  const padLength = target - buf.length % target || target
+  return Buffer.concat([buf, Buffer.alloc(padLength, padLength)])
+}
+
+// Sem validação, `pksc7Inv` aceitaria padding arbitrário e abriria a porta
+// para padding oracle attacks quando combinado com CBC sem MAC. Validamos
+// que o tamanho está no intervalo permitido e que os `size` últimos bytes
+// realmente valem `size`.
 const pksc7Inv = input => {
   const buf = Buffer.from(input)
   const len = buf.length
   const size = buf[len - 1]
 
-  if (len === 0 || size < 1 || size > BLOCK_SIZE || size > len) {
-    throw new Error('Invalid PKCS#7 padding')
-  }
+  const invalid =
+    len === 0 ||
+    size < 1 ||
+    size > BLOCK_SIZE ||
+    size > len ||
+    !buf.slice(len - size).every(b => b === size)
 
-  for (let i = len - size; i < len; i++) {
-    if (buf[i] !== size) throw new Error('Invalid PKCS#7 padding')
-  }
+  if (invalid) throw new Error('Invalid PKCS#7 padding')
 
   return buf.slice(0, -size)
 }
