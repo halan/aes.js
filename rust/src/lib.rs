@@ -22,7 +22,7 @@ pub mod padding;
 pub mod types;
 pub mod utils;
 
-pub use aes::Aes128;
+pub use aes::{Aes, Aes128, Aes192, Aes256};
 pub use gcm::{gcm_decrypt, gcm_encrypt, GcmAuthError, GcmCiphertext};
 pub use op_modes::{cbc_decrypt, cbc_encrypt, ecb_decrypt, ecb_encrypt, BlockCipher};
 pub use padding::PaddingError;

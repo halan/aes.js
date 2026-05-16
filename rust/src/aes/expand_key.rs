@@ -1,90 +1,71 @@
-//! Expansão de chave (Rijndael key schedule) para AES-128.
+//! Expansão de chave (Rijndael key schedule) — generaliza AES-128, 192 e 256.
 //!
-//! No estilo TS, isso era um `scanl` duplo: o externo gera 10 chaves novas a
-//! partir da inicial; cada chave nova é, por sua vez, um `scanl` com XOR sobre
-//! as 4 words da chave anterior. Em Rust expressamos o mesmo via
-//! [`Iterator::scan`], que mapeia diretamente o conceito — e ainda mantém a
-//! tipagem do array de tamanho fixo (`RoundKeys = [Block; 11]`).
+//! Os três tamanhos de chave diferem em três pontos:
+//!   - Quantidade de words na chave inicial (`Nk` = 4, 6, 8)
+//!   - Número de rounds (10, 12, 14) e portanto de round keys (11, 13, 15)
+//!   - AES-256 aplica `sub_word` adicional sem `rot_word` a cada 4 words
+//!     dentro de cada bloco de 8 (`Nk > 6 && i % Nk == 4`)
+//!
+//! Uma única função genérica sobre os comprimentos cobre todos os casos.
+//! Const generics garantem em compile-time que `Aes128::new` só aceita chaves
+//! de 16 bytes, `Aes192::new` só de 24, e `Aes256::new` só de 32.
 
 use crate::aes::rounds::sub_word;
-use crate::types::{Block, Byte, Key, RoundKeys, Word, NUM_ROUNDS};
+use crate::types::{Block, Byte, Word};
 use crate::utils::xor;
-use std::array;
 
-/// Constantes `rcon` aplicadas no primeiro byte de cada nova chave gerada.
-/// Uma para cada `NUM_ROUNDS`. `RCON[0]` não é usada (artifact da
-/// especificação histórica).
+/// Constantes `rcon`. Dimensionada para o pior caso (AES-128 usa até
+/// índice 10; AES-192 até 8; AES-256 até 7).
 /// [Detalhes](https://en.wikipedia.org/wiki/Rijndael_key_schedule#Rcon).
-const RCON: [Byte; NUM_ROUNDS + 1] = [
+const RCON: [Byte; 11] = [
     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36,
 ];
 
-/// Rotaciona os bytes de uma word: `[a, b, c, d] -> [b, c, d, a]`.
 fn rot_word([a, b, c, d]: Word) -> Word {
     [b, c, d, a]
 }
 
-/// XOR no primeiro byte de uma word com `rcon`.
-fn xor_first_byte(rcon: Byte, [first, b, c, d]: Word) -> Word {
-    [first ^ rcon, b, c, d]
-}
-
-/// Última word de uma chave (bytes 12..16). `try_into` é infalível porque o
-/// próprio tipo garante 16 bytes em `Block`.
-fn last_word(key: &Block) -> Word {
-    key[12..16]
-        .try_into()
-        .expect("Block has 16 bytes, slice 12..16 has 4")
-}
-
-/// `key_schedule(rcon, key)` produz a "semente" usada para derivar a próxima
-/// chave: aplica `lastWord → rotWord → subWord → xor com rcon` na chave atual.
-fn key_schedule(rcon: Byte, prev: &Block) -> Word {
-    xor_first_byte(rcon, sub_word(rot_word(last_word(prev))))
-}
-
-/// Deriva a próxima chave de 128 bits. Cada word nova é o XOR da word
-/// correspondente em `prev` com o resultado acumulado — `scan` em Rust
-/// preserva exatamente a semântica do `scanl(xor)(initial)` da versão TS.
-fn generate(initial: Word, prev: &Block) -> Block {
-    let words: [Word; 4] = array::from_fn(|i| {
-        prev[i * 4..i * 4 + 4]
-            .try_into()
-            .expect("Block has 16 bytes, slice of 4 is a Word")
-    });
-
-    let derived: Vec<Word> = words
-        .iter()
-        .scan(initial, |state, &w| {
-            *state = xor(state, &w);
-            Some(*state)
-        })
-        .collect();
-
-    let mut out: Block = [0; 16];
-    for (i, w) in derived.iter().enumerate() {
-        out[i * 4..i * 4 + 4].copy_from_slice(w);
-    }
-    out
-}
-
-/// Expande uma chave AES-128 em 11 round keys.
+/// Algoritmo Rijndael generalizado. `KEY_BYTES` é o tamanho da chave em bytes
+/// (16/24/32) e `ROUND_KEYS` é a quantidade total de round keys (11/13/15).
 ///
-/// O tipo `Key = [u8; 16]` torna desnecessária a validação de comprimento
-/// em runtime — o compilador rejeita chaves de outro tamanho. AES-192 e
-/// AES-256 exigiriam outros tipos e outros `expand_key`.
+/// O loop principal segue FIPS-197 §5.2:
+///   - A cada `Nk` words, aplicar `rot_word → sub_word → xor com rcon`
+///   - Em AES-256 (`Nk > 6`), a cada 4 words intermediárias, aplicar apenas
+///     `sub_word` (sem rotação, sem rcon)
+///   - As demais são apenas `prev XOR temp` em cima da word `Nk` posições atrás
 #[must_use]
-pub fn expand_key(key: &Key) -> RoundKeys {
-    let derived = (1..=NUM_ROUNDS).scan(*key, |prev, i| {
-        let seed = key_schedule(RCON[i], prev);
-        *prev = generate(seed, prev);
-        Some(*prev)
-    });
+pub fn expand_key<const KEY_BYTES: usize, const ROUND_KEYS: usize>(
+    key: &[u8; KEY_BYTES],
+) -> [Block; ROUND_KEYS] {
+    let nk = KEY_BYTES / 4;
+    let total_words = 4 * ROUND_KEYS;
 
-    let mut keys: RoundKeys = [[0; 16]; NUM_ROUNDS + 1];
-    keys[0] = *key;
-    for (i, k) in derived.enumerate() {
-        keys[i + 1] = k;
+    let mut words: Vec<Word> = Vec::with_capacity(total_words);
+
+    // Primeiras `Nk` words = chave inicial.
+    for i in 0..nk {
+        words.push([key[i * 4], key[i * 4 + 1], key[i * 4 + 2], key[i * 4 + 3]]);
     }
-    keys
+
+    for i in nk..total_words {
+        let mut temp = words[i - 1];
+        if i.is_multiple_of(nk) {
+            temp = sub_word(rot_word(temp));
+            temp[0] ^= RCON[i / nk];
+        } else if nk > 6 && i % nk == 4 {
+            // AES-256 only
+            temp = sub_word(temp);
+        }
+        words.push(xor(&words[i - nk], &temp));
+    }
+
+    // Combina as words em blocos de 16 bytes (round keys).
+    let mut round_keys = [[0u8; 16]; ROUND_KEYS];
+    for (rk_idx, rk) in round_keys.iter_mut().enumerate() {
+        for w in 0..4 {
+            let word = words[rk_idx * 4 + w];
+            rk[w * 4..w * 4 + 4].copy_from_slice(&word);
+        }
+    }
+    round_keys
 }

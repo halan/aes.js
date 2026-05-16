@@ -12,25 +12,26 @@
 //!
 //! [`Aes128`]: crate::Aes128
 
+use crate::aes::Aes;
 use crate::padding::{pksc7, pksc7_inv, PaddingError};
 use crate::types::{Block, BLOCK_SIZE};
 use crate::utils::xor;
-use crate::Aes128;
 
 /// Abstrai a operação por bloco. O trait permite que os modos sejam
 /// genéricos sobre o cifrador concreto — a única dependência são as funções
-/// `encrypt` e `decrypt` sobre [`Block`].
+/// `encrypt` e `decrypt` sobre [`Block`]. AES-128, 192 e 256 implementam
+/// via uma única impl genérica sobre `NRK` (número de round keys).
 pub trait BlockCipher {
     fn encrypt(&self, state: Block) -> Block;
     fn decrypt(&self, state: Block) -> Block;
 }
 
-impl BlockCipher for Aes128 {
+impl<const NRK: usize> BlockCipher for Aes<NRK> {
     fn encrypt(&self, state: Block) -> Block {
-        Aes128::encrypt(self, state)
+        Aes::<NRK>::encrypt(self, state)
     }
     fn decrypt(&self, state: Block) -> Block {
-        Aes128::decrypt(self, state)
+        Aes::<NRK>::decrypt(self, state)
     }
 }
 
@@ -48,7 +49,7 @@ fn to_block(chunk: &[u8]) -> Block {
 // autentica — combine com um MAC ou prefira um modo AEAD (GCM).
 
 #[must_use]
-pub fn cbc_encrypt<C: BlockCipher>(cipher: &C, iv: &Block, plaintext: &[u8]) -> Vec<u8> {
+pub fn cbc_encrypt<C: BlockCipher + ?Sized>(cipher: &C, iv: &Block, plaintext: &[u8]) -> Vec<u8> {
     let padded = pksc7(plaintext);
 
     padded
@@ -67,7 +68,7 @@ pub fn cbc_encrypt<C: BlockCipher>(cipher: &C, iv: &Block, plaintext: &[u8]) -> 
 ///
 /// Propaga [`PaddingError`] se o plaintext resultante tiver padding PKCS#7
 /// inválido (tipicamente um sinal de tampering ou chave/IV errados).
-pub fn cbc_decrypt<C: BlockCipher>(
+pub fn cbc_decrypt<C: BlockCipher + ?Sized>(
     cipher: &C,
     iv: &Block,
     ciphertext: &[u8],
@@ -92,7 +93,7 @@ pub fn cbc_decrypt<C: BlockCipher>(
 // produzem ciphertext idêntico. Implementado apenas para fins didáticos.
 
 #[must_use]
-pub fn ecb_encrypt<C: BlockCipher>(cipher: &C, plaintext: &[u8]) -> Vec<u8> {
+pub fn ecb_encrypt<C: BlockCipher + ?Sized>(cipher: &C, plaintext: &[u8]) -> Vec<u8> {
     pksc7(plaintext)
         .chunks_exact(BLOCK_SIZE)
         .map(to_block)
@@ -104,7 +105,10 @@ pub fn ecb_encrypt<C: BlockCipher>(cipher: &C, plaintext: &[u8]) -> Vec<u8> {
 ///
 /// Propaga [`PaddingError`] se o plaintext resultante tiver padding PKCS#7
 /// inválido.
-pub fn ecb_decrypt<C: BlockCipher>(cipher: &C, ciphertext: &[u8]) -> Result<Vec<u8>, PaddingError> {
+pub fn ecb_decrypt<C: BlockCipher + ?Sized>(
+    cipher: &C,
+    ciphertext: &[u8],
+) -> Result<Vec<u8>, PaddingError> {
     let plain: Vec<u8> = ciphertext
         .chunks_exact(BLOCK_SIZE)
         .map(to_block)

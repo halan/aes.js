@@ -11,7 +11,7 @@
 use aes_rs::aes::expand_key::expand_key;
 use aes_rs::padding::{pksc7, pksc7_inv, PaddingError};
 use aes_rs::types::{Block, Byte, Key};
-use aes_rs::{cbc_decrypt, cbc_encrypt, ecb_decrypt, ecb_encrypt, Aes128};
+use aes_rs::{cbc_decrypt, cbc_encrypt, ecb_decrypt, ecb_encrypt, Aes128, Aes192, Aes256};
 
 // === Vetores NIST FIPS-197 ===
 
@@ -53,6 +53,73 @@ fn nist_fips197_appendix_c1() {
     let cipher = Aes128::new(&key);
     assert_eq!(cipher.encrypt(plain), expected);
     assert_eq!(cipher.decrypt(expected), plain);
+}
+
+// === Vetores NIST FIPS-197 — AES-192 e AES-256 ===
+
+#[test]
+fn nist_fips197_appendix_c2_aes192() {
+    let key: [u8; 24] = [
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+        0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+    ];
+    let plain: Block = [
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee,
+        0xff,
+    ];
+    let expected: Block = [
+        0xdd, 0xa9, 0x7c, 0xa4, 0x86, 0x4c, 0xdf, 0xe0, 0x6e, 0xaf, 0x70, 0xa0, 0xec, 0x0d, 0x71,
+        0x91,
+    ];
+
+    let cipher = Aes192::new(&key);
+    assert_eq!(cipher.encrypt(plain), expected);
+    assert_eq!(cipher.decrypt(expected), plain);
+}
+
+#[test]
+fn nist_fips197_appendix_c3_aes256() {
+    let key: [u8; 32] = [
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+        0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+        0x1e, 0x1f,
+    ];
+    let plain: Block = [
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee,
+        0xff,
+    ];
+    let expected: Block = [
+        0x8e, 0xa2, 0xb7, 0xca, 0x51, 0x67, 0x45, 0xbf, 0xea, 0xfc, 0x49, 0x90, 0x4b, 0x49, 0x60,
+        0x89,
+    ];
+
+    let cipher = Aes256::new(&key);
+    assert_eq!(cipher.encrypt(plain), expected);
+    assert_eq!(cipher.decrypt(expected), plain);
+}
+
+#[test]
+fn aes192_cbc_round_trip() {
+    let key: [u8; 24] = [0xaa; 24];
+    let iv: Block = [0xbb; 16];
+    let cipher = Aes192::new(&key);
+    let plain = b"AES-192 round trip!!!!";
+
+    let ct = cbc_encrypt(&cipher, &iv, plain);
+    let pt = cbc_decrypt(&cipher, &iv, &ct).unwrap();
+    assert_eq!(pt, plain);
+}
+
+#[test]
+fn aes256_cbc_round_trip() {
+    let key: [u8; 32] = [0xcc; 32];
+    let iv: Block = [0xdd; 16];
+    let cipher = Aes256::new(&key);
+    let plain = b"AES-256 round trip with a longer message";
+
+    let ct = cbc_encrypt(&cipher, &iv, plain);
+    let pt = cbc_decrypt(&cipher, &iv, &ct).unwrap();
+    assert_eq!(pt, plain);
 }
 
 // === expand_key contra valores conhecidos ===
@@ -97,7 +164,7 @@ fn expand_key_matches_known_schedule() {
             180, 142, 243, 82, 186, 152, 19, 78, 127, 77, 89, 32, 134, 38, 24, 118,
         ],
     ];
-    assert_eq!(expand_key(&key), expected);
+    assert_eq!(expand_key::<16, 11>(&key), expected);
 }
 
 // === CBC e ECB ===

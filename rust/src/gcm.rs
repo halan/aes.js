@@ -9,8 +9,8 @@
 //! `gcm_decrypt` valida o tag em tempo constante antes de devolver o
 //! plaintext.
 
+use crate::op_modes::BlockCipher;
 use crate::types::Block;
-use crate::Aes128;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct GcmAuthError;
@@ -89,7 +89,7 @@ fn inc32(counter: &mut Block) {
     }
 }
 
-fn gctr(cipher: &Aes128, initial_counter: Block, data: &[u8]) -> Vec<u8> {
+fn gctr<C: BlockCipher + ?Sized>(cipher: &C, initial_counter: Block, data: &[u8]) -> Vec<u8> {
     let mut counter = initial_counter;
     let mut out = Vec::with_capacity(data.len());
 
@@ -158,7 +158,12 @@ fn ct_eq(a: &[u8], b: &[u8]) -> bool {
 /// **O IV precisa ser único por (chave, mensagem).** Reusar IV com a mesma
 /// chave colapsa a segurança do GCM por completo.
 #[must_use]
-pub fn gcm_encrypt(cipher: &Aes128, iv: &[u8], plaintext: &[u8], aad: &[u8]) -> GcmCiphertext {
+pub fn gcm_encrypt<C: BlockCipher + ?Sized>(
+    cipher: &C,
+    iv: &[u8],
+    plaintext: &[u8],
+    aad: &[u8],
+) -> GcmCiphertext {
     let h = cipher.encrypt([0; 16]);
     let j0 = compute_j0(&h, iv);
 
@@ -181,8 +186,8 @@ pub fn gcm_encrypt(cipher: &Aes128, iv: &[u8], plaintext: &[u8], aad: &[u8]) -> 
 ///
 /// [`GcmAuthError`] se o tag não bate — sinal de tampering, chave/IV
 /// errados, ou AAD divergente.
-pub fn gcm_decrypt(
-    cipher: &Aes128,
+pub fn gcm_decrypt<C: BlockCipher + ?Sized>(
+    cipher: &C,
     iv: &[u8],
     ciphertext: &[u8],
     tag: &Block,
