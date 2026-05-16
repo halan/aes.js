@@ -83,7 +83,13 @@ const generate = (initial, key) =>
 
 
 // Finalmente a função de expansão de chave. Ela recebe uma chave e entrega 11!
-export default key =>
+// Esta implementação suporta apenas AES-128: chaves de outros tamanhos
+// produziriam uma expansão silenciosamente incorreta sem essa validação.
+export default key => {
+  if (key.length !== 16) {
+    throw new Error(`AES-128 requires a 16-byte key, got ${key.length}`)
+  }
+  return (
   // Passo um reduce sobre os RCONS, e para cada RCON executo a função de geração de chave
   // passando como entrada a última chave e o rcon da rodada.
   pipe(
@@ -100,4 +106,6 @@ export default key =>
     map(Buffer.from)
   // O rcon[0] não é utilizado, por isso o `slice`.
   )(RCON.slice(1))
+  )
+}
 

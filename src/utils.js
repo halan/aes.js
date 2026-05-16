@@ -33,8 +33,15 @@ const flat =
 const pipe = (...fns) => x =>
   fns.reduce((v, f) => f(v), x);
 
-// xor byte a byte
-const xor = left => map((b, i) => left[i] ^ b)
+// xor byte a byte. Exige tamanhos iguais: tamanhos divergentes seriam
+// silenciosamente toleráveis (bytes em excesso passariam intactos), o que
+// mascararia IV/chave de tamanho errado em vez de falhar explicitamente.
+const xor = left => right => {
+  if (left.length !== right.length) {
+    throw new Error(`xor: mismatched lengths (${left.length} vs ${right.length})`)
+  }
+  return right.map((b, i) => left[i] ^ b)
+}
 
 // Essa função aplica uma função sobre cada valor e seu valor anterior num array
 // O valor de ini é aplicado sobre o primeiro valor da array
