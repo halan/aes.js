@@ -10,7 +10,8 @@
     "#opModes": "./src/opModes.ts",
     "#padding": "./src/padding.ts",
     "#utils": "./src/utils.ts",
-    "#types": "./src/types.ts"
+    "#types": "./src/types.ts",
+    "#gcm": "./src/gcm.ts"
   },
   "scripts": {
     "doc": "docco src/*.ts src/**/*.ts src/**/**/*.ts",
