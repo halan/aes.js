@@ -1,0 +1,17 @@
+[package]
+name = "aes-rs"
+version = "0.1.0"
+edition = "2021"
+description = "Didactic AES-128 implementation in Rust — companion to ../src (TypeScript)."
+license = "ISC"
+publish = false
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# Constantes hexadecimais com 0x.. são mais legíveis em maiúscula para AES.
+unreadable_literal = "allow"
+# Tabelas de 256 entradas literais são intencionais (didáticas).
+too_many_lines = "allow"
