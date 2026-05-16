@@ -1,14 +1,12 @@
 // ## Padding PKCS#7
-//
-// PKCS#7 completa o último bloco com bytes cujo *valor* é o número de bytes
-// adicionados. Quando o input já está alinhado, adiciona-se um bloco inteiro
-// — assim a recuperação do plaintext fica sempre inequívoca.
+
+import type { Byte } from './types.ts'
 
 const BLOCK_SIZE = 16
 
-const pksc7 = target => input => {
-  const buf = Buffer.from(input)
-  const padLength = target - buf.length % target || target
+export const pksc7 = (target: number) => (input: Uint8Array | string | readonly Byte[]): Buffer => {
+  const buf = Buffer.from(input as Parameters<typeof Buffer.from>[0])
+  const padLength = target - (buf.length % target) || target
   return Buffer.concat([buf, Buffer.alloc(padLength, padLength)])
 }
 
@@ -16,21 +14,20 @@ const pksc7 = target => input => {
 // para padding oracle attacks quando combinado com CBC sem MAC. Validamos
 // que o tamanho está no intervalo permitido e que os `size` últimos bytes
 // realmente valem `size`.
-const pksc7Inv = input => {
-  const buf = Buffer.from(input)
+export const pksc7Inv = (input: Uint8Array | readonly Byte[]): Buffer => {
+  const buf = Buffer.from(input as Parameters<typeof Buffer.from>[0])
   const len = buf.length
   const size = buf[len - 1]
 
   const invalid =
     len === 0 ||
+    size === undefined ||
     size < 1 ||
     size > BLOCK_SIZE ||
     size > len ||
-    !buf.slice(len - size).every(b => b === size)
+    !buf.slice(len - size).every((b) => b === size)
 
   if (invalid) throw new Error('Invalid PKCS#7 padding')
 
-  return buf.slice(0, -size)
+  return buf.slice(0, -(size as number))
 }
-
-export { pksc7, pksc7Inv }

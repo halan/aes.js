@@ -4,23 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Purpose
 
-Didactic AES-128 implementation in ES6, written in a functional style. README is explicit: **not for production** — favors readability over efficiency or security. Most source comments are in pt-BR; preserve language and style when editing.
+Didactic AES-128 implementation in TypeScript, written in an aggressive functional style with tight types. README is explicit: **not for production** — favors readability over efficiency or security. Most source comments are in pt-BR; preserve language and style when editing.
 
 ## Commands
 
-- Run all tests: `npm test` (mocha 11)
-- Run a single test file: `npx mocha test/aes/expandKey_test.js`
+- Run all tests: `npm test` (mocha 11 via `tsx` loader configured in `.mocharc.json`)
+- Run a single test file: `npx mocha test/aes/expandKey_test.ts`
+- Type-check: `npm run typecheck` (`tsc --noEmit` with strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`)
 - Generate annotated docs: `npm run doc` (docco → `docs/` from the pt-BR comments)
 
-The project is ESM (`"type": "module"` in package.json). Tests import the source via the `imports` subpath map (`#aes`, `#aes/expandKey`, `#aes/rounds/index`, `#opModes`, `#utils`, `#padding`) — that map replaces the old `NODE_PATH=./src` trick. Source files use relative imports with explicit `.js` extensions, as ESM requires.
+The project is ESM (`"type": "module"`) and TypeScript with `moduleResolution: NodeNext` + `allowImportingTsExtensions`. Tests import the source via the `imports` subpath map (`#aes`, `#aes/expandKey`, `#aes/rounds/index`, `#opModes`, `#utils`, `#padding`, `#types`) which points at `.ts` files directly — tsx resolves them at runtime. There is no build step; consumers must use TS or a compatible runner.
 
 ## Architecture
 
 Entry point `src/index.js` exposes two namespaces: `AES` (raw block cipher) and `OpModes` (block-mode wrappers + padding). Op-mode signatures are fully curried — `OpModes.cbc(AES.encrypt(key))(iv)(plaintext)`.
 
+### Type model
+
+`src/types.ts` defines:
+- `Byte = number` (range 0-255 by convention)
+- `Bytes = readonly Byte[]`, `Word = Bytes` (4), `Block = Bytes` (16) — internal canonical
+- `BlockLike = ArrayLike<Byte> & Iterable<Byte>` — accepts `Buffer`, `Uint8Array`, `number[]`; the public API parameter type. Internal pipeline coerces via `Array.from` at the boundary so everything downstream is plain `Byte[]`.
+- `Key = BlockLike` — runtime validated to length 16 by `expandKey`
+- `RoundKeys` — tuple-of-11 `Block`; the tuple shape lets `head`/`last`/`middle` return non-`undefined`
+- `Permutation16` — tuple-of-16 numbers; used only for the `shiftRows` index table
+- `LookupTable = Bytes` (length-256 by convention) — recursive tuple-of-256 was rejected as worse IDE-experience for no payoff
+
+`pipe`/`compose` are typed with overloads up to 6 functions; beyond that the chain falls back to `Fn<unknown, unknown>[]`. `applyRounds` (`aes/index.ts`) is a direct `reduce` rather than `pipe(...keys.map(fn))` because the variadic spread defeats overload resolution anyway.
+
 ### Functional pipeline style
 
-Everything is built on `pipe(...fns)(x)` from `src/utils.js`. Each AES step is a pure function `Buffer → Buffer` (or array → array), composed left-to-right. When reading or modifying code, trace data flow through `pipe(...)` rather than looking for imperative state. Helpers in `utils.js` worth knowing:
+Everything is built on `pipe(...fns)(x)` from `src/utils.ts`. Each AES step is a pure function over `Block` (or `Word`), composed left-to-right. When reading or modifying code, trace data flow through `pipe(...)` rather than looking for imperative state. Helpers in `utils.ts` worth knowing:
 
 - Combinators: `id`, `constant` (K), `dup` (W), `flip`, `compose`, `pipe`
 - List decomposition: `head`, `tail`, `init`, `last`, `middle` (≡ `init ∘ tail`)
@@ -28,7 +42,7 @@ Everything is built on `pipe(...fns)(x)` from `src/utils.js`. Each AES step is a
 - `partition(n)` / `splitInWords` — recursive chunking (words = 4 bytes)
 - `xor(left)(right)` — byte-wise XOR; throws on mismatched lengths
 - `mapAccumL(fn)(ini)(arr)` — Haskell-style stateful map; carries an accumulator, records a (possibly different) value per element. Used by CBC decrypt, where the propagated state is the previous *ciphertext* block.
-- `scanl(fn)(ini)(arr)` — like `reduce` but returns every intermediate result. Defined as `mapAccumL(state => x => dup(fn(state)(x)))` — the W-combinator captures the "state and output coincide" case. Used by CBC encrypt and by the AES key schedule.
+- `scanl(fn)(ini)(arr)` — like `reduce` but returns every intermediate result. Conceptually equivalent to `mapAccumL(state => x => dup(fn(state)(x)))` (W-combinator); we define it independently in TS to keep types tight (the equivalence types poorly because TS would have to prove state and output coincide). The pedagogical insight survives as a comment on `dup`.
 
 `dup(x) === [x, x]` returns two references to the *same* value; consumers must treat outputs as immutable.
 

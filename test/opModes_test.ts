@@ -71,7 +71,7 @@ describe('round-trip on non-block-aligned plaintexts', () => {
   const key = Buffer.from('DxVxyUfZ6FkMt63Wr39nmA==', 'base64')
   const iv  = Buffer.from('U2FsdGVkX182re6Lw5wOZQ==', 'base64')
 
-  const cases = [
+  const cases: ReadonlyArray<readonly [string, string]> = [
     ['empty', ''],
     ['shorter than a block', 'short'],
     ['one byte less than a block', 'fifteen bytes!!'],
@@ -99,7 +99,8 @@ describe('CBC tamper detection (via padding validation)', () => {
 
   it('rejects ciphertext whose last block was tampered with (bad padding)', () => {
     const ct = Buffer.from(cbc(encrypt(key))(iv)(plain))
-    ct[ct.length - 1] ^= 0xff
+    const lastIdx = ct.length - 1
+    ct[lastIdx] = (ct[lastIdx] ?? 0) ^ 0xff
     expect(() => cbcInv(decrypt(key))(iv)(ct)).to.throw(/PKCS#7/)
   })
 

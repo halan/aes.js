@@ -5,34 +5,36 @@
 // decriptação). Lembre que `addRoundKey` é seu próprio inverso (XOR é
 // involutivo), portanto não há `addRoundKeyInv`.
 
-import { pipe } from '../../utils.js'
+import { pipe } from '../../utils.ts'
+import type { Block } from '../../types.ts'
 
-import { subBytes, subBytesInv } from './subBytes.js'
-import { shiftRows, shiftRowsInv } from './shiftRows.js'
-import { mixColumns, mixColumnsInv } from './mixColumns.js'
-import { addRoundKey } from './addRoundKey.js'
+import { subBytes, subBytesInv } from './subBytes.ts'
+import { shiftRows, shiftRowsInv } from './shiftRows.ts'
+import { mixColumns, mixColumnsInv } from './mixColumns.ts'
+import { addRoundKey } from './addRoundKey.ts'
+
+type Round = (key: Block) => (state: Block) => Block
 
 // ### Encriptação
 //
-// O `middleRound` aplica todas as 4 etapas. O `lastRound` é igual mas sem
-// `mixColumns`. O `firstRound` é apenas `addRoundKey` (pré-whitening), por isso
+// `middleRound` aplica todas as 4 etapas. `lastRound` é igual mas sem
+// `mixColumns`. `firstRound` é apenas `addRoundKey` (pré-whitening), por isso
 // re-exportado como alias mais abaixo.
-const middleRound = key =>
+const middleRound: Round = (key) =>
   pipe(subBytes, shiftRows, mixColumns, addRoundKey(key))
 
-const lastRound = key =>
+const lastRound: Round = (key) =>
   pipe(subBytes, shiftRows, addRoundKey(key))
 
 // ### Decriptação
 //
-// Cada etapa invertida na ordem oposta. O `firstRoundInv` desfaz o `lastRound`
-// (sem `mixColumnsInv`); o `lastRoundInv` desfaz o `firstRound` (apenas XOR).
-const firstRoundInv = key =>
+// Cada etapa invertida na ordem oposta. `firstRoundInv` desfaz `lastRound`
+// (sem `mixColumnsInv`); `lastRoundInv` desfaz `firstRound` (apenas XOR).
+const firstRoundInv: Round = (key) =>
   pipe(addRoundKey(key), shiftRowsInv, subBytesInv)
 
-const middleRoundInv = key =>
+const middleRoundInv: Round = (key) =>
   pipe(addRoundKey(key), mixColumnsInv, shiftRowsInv, subBytesInv)
-
 
 export {
   subBytes, subBytesInv,
