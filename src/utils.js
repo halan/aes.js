@@ -9,7 +9,7 @@ const partition = size => arr =>
 // Esta é utilizada tanto para `lastWord` quanto para `splitInWords`.
 const WORD_SIZE = 4
 
-// Função auxiliar que devolve a última words.
+// Função auxiliar que devolve a última word.
 // Na prática: retorna um array com os 4 últimos elementos.
 const lastWord = arr => arr.length && arr.slice(-WORD_SIZE)
 

@@ -1,6 +1,6 @@
 // ## Aviso
 
-// Este código não deve e nem tem pretenções de ser utilizado em produção.
+// Este código não deve e nem tem pretensões de ser utilizado em produção.
 // Deve ser utilizado somente com fins didáticos. O foco é tanto mostrar um algoritmo criptográfico,
 // quanto exemplos de uso de programação funcional e ECMAScript6.
 // Caso esteja interessado em encriptar coisas em produção, utilize a 
@@ -14,7 +14,7 @@
 // Organizar em alto nível a lógica básica do AES:
 //   - Expandir a chave de 128 bits em 11 chaves do mesmo tamanho
 //   - Executar as etapas da primeira rodada com a chave original
-//   - Executar 9 vezes as etapas de embaralhalamento com as respectivas chaves
+//   - Executar 9 vezes as etapas de embaralhamento com as respectivas chaves
 //   - Executar a rodada final com a última das 11 chaves
 
 // [Descrição um pouco mais detalhada na Wikipedia...](https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard#Descri.C3.A7.C3.A3o_de_Cifra)
@@ -39,13 +39,13 @@ import { pipe, reduce, map } from '../utils.js'
 
 // Algoritmo de expansão de chave.
 // Nessa implementação suportamos apenas uma chave de 128 bits.
-// É nesse algoritmo que pegamos a chave inicial devolvemos 10 novas chaves.
+// É nesse algoritmo que pegamos a chave inicial e devolvemos 10 novas chaves.
 // A chave inicial mais as novas 10 chaves formam
 // as 11 chaves necessárias para as 11 rodadas da encriptação.
 import expandKey from './expandKey.js'
 
-// Está é uma função autiliar que aplica rounds iguais em sequência de acordo com uma
-// coleção da chaves. Vamos utilizar isso para executar 9 rounds com as 9 chaves das 11 (as do meio).
+// Esta é uma função auxiliar que aplica rounds iguais em sequência de acordo com uma
+// coleção de chaves. Vamos utilizar isso para executar 9 rounds com as 9 chaves das 11 (as do meio).
 const applyRounds = fn => keys =>
   pipe(...map(fn)(keys))
 
@@ -77,7 +77,7 @@ const encrypt = key =>
 
 // ### Decriptando
 
-// Essa função é bem parecida com a `encrypRounds` em sua estrutura.
+// Essa função é bem parecida com a `encryptRounds` em sua estrutura.
 // Ela usa as versões inversas dos rounds e as chaves expandidas são servidas de forma reversa.
 const decryptRounds = keys =>
   pipe(

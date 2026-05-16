@@ -68,12 +68,12 @@ export {
   subBytesInv,
   shiftRowsInv,
 
-  // O primeiro round da encriptação é utilizado apenas o `addRoundKey`
+  // No primeiro round da encriptação é utilizado apenas o `addRoundKey`
   addRoundKey as firstRound,
   middleRound,
   lastRound,
 
-  // O último round da encriptação é utilizado apenas o `addRoundKey`
+  // No último round da encriptação é utilizado apenas o `addRoundKey`
   firstRoundInv,
   middleRoundInv,
   addRoundKey as lastRoundInv

@@ -8,7 +8,7 @@ import { splitInWords, flat, pipe, map } from '../../utils.js'
 
 // Tabelas pré-calculadas de multiplicação de Galois.
 // Mais detalhes e o próprio cálculo pode ser encontrado [aqui](https://en.wikipedia.org/wiki/Rijndael_mix_columns)
-// G2 e G3 é utilizado na difusão das colunas para *encriptação*. G9, G11, G13 e G4 são utilizadasna *decriptação*.
+// G2 e G3 são utilizadas na difusão das colunas para *encriptação*. G9, G11, G13 e G14 são utilizadas na *decriptação*.
 // Essas tabelas possuem 16*16, ou seja, 256 valores, um para cada byte possível.
 const G2 =
   [0x00,0x02,0x04,0x06,0x08,0x0a,0x0c,0x0e,0x10,0x12,0x14,0x16,0x18,0x1a,0x1c,0x1e,
@@ -118,7 +118,7 @@ const G14 =
    0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
    0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d]
 
-// Calculo de difusão de coluna.
+// Cálculo de difusão de coluna.
 const mixCol = ([a0, a1, a2, a3]) => ([
   G2[a0] ^ G3[a1] ^     a2  ^    a3,
      a0  ^ G2[a1] ^  G3[a2] ^    a3,

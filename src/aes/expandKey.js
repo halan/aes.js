@@ -38,7 +38,7 @@ const rotWord = ([first, ...rest]) =>
 // `subWord` é a mesma coisa que o `subBytes`. No caso da expansão de chave esse procedimento é feito
 // sobre uma word. Todo o procedimento de expansão de chave é baseado em words, que funcionam como
 //
-// subblocos. Entretanto o `subBytes` é apenas uma substituição de um byte por outro, se aplico em 4 bytes
+// sub-blocos. Entretanto o `subBytes` é apenas uma substituição de um byte por outro, se aplico em 4 bytes
 // ou em 16 o procedimento em si não é alterado.
 const subWord = subBytes
 
@@ -89,14 +89,14 @@ export default key =>
   pipe(
     // Prepara uma coleção de keySchedule já com rcon correspondente aplicado
     map(keySchedule),
-    // Passa um chainBlocks sobre o keySchedule já cm o rcon correspondente aplicado,
+    // Passa um chainBlocks sobre o keySchedule já com o rcon correspondente aplicado,
     chainBlocks(keyScheduleRcon => k =>
-      //e então utiiza este valor como sendo o initial da função de geração de chaves
+      // e então utiliza este valor como sendo o initial da função de geração de chaves
       generate(keyScheduleRcon(k), k)
     )(key),
     // A chave inicial precisa estar contida na lista final
     keys => [key, ...keys],
-    // Cada chave é cnvertida para um buffer
+    // Cada chave é convertida para um buffer
     map(Buffer.from)
   // O rcon[0] não é utilizado, por isso o `slice`.
   )(RCON.slice(1))
