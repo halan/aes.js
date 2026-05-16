@@ -11,6 +11,39 @@ O código vive em três frentes que se espelham:
 | `rust/src/wasm.rs` | Ponte `wasm-bindgen` que expõe o lado Rust ao TS |
 | `bench/` | Harness comparando TS puro × WASM × `node:crypto` (AES-NI) |
 
+## Histórico
+
+Este repositório atravessou três fases de desenvolvimento, separadas por anos. A tag `pre-claude` marca o último commit antes da terceira fase.
+
+### Setembro de 2016 — origem didática
+
+Comecei o código em 23 de setembro de 2016, estudando AES diretamente do livro **[Cryptography and Network Security: Principles and Practice](https://g.co/kgs/UUEmv7)**, de William Stallings — a referência clássica de criptografia em currículos de graduação e pós. Em três dias, AES-128 encrypt e decrypt estavam funcionando, com expansão de chave, as quatro etapas dos rounds, testes contra vetores conhecidos, e a estrutura de pastas que sobrevive até hoje. O estilo era funcional desde o início (`pipe`, `reduce`, ES6); a documentação saía pelo `groc` (literate programming style, hoje substituído pelo `docco`). I/O via `Uint8Array`. Sem CBC, sem padding — só o cifrador de bloco puro.
+
+### Junho de 2019 — primeira revisita
+
+Quase três anos depois, voltei ao código com olhos mais frios. Os commits dessa semana ("Refactring 3 years after..." em 21/06, "Improve comments" em 22/06) trazem três mudanças relevantes: (1) introdução do conceito de `chainBlocks` em `utils`, generalizando o padrão de "cada bloco depende do anterior" usado tanto em CBC quanto na expansão de chave; (2) reimplementação do `mixColumns` em estilo pipe; (3) **adição do CBC e PKCS#7** — completando o cifrador para uso real, embora a validação de padding ficasse pendente (a mensagem do commit `fa7b302` diz literalmente "Implementing CBC and PKSC7 (without validation)" — o débito que viraria parte central do report de segurança 7 anos depois). Migração de Uint8Array para Buffer; remoção do Babel em favor de CommonJS puro.
+
+### Maio de 2026 — fase Claude
+
+Quase sete anos depois, comigo (Claude, na versão Opus 4.7). O escopo dessa fase foi muito maior:
+
+- **Higiene de projeto**: migração ESM, upgrade de dependências (chai 3 → 5, mocha 3 → 11), substituição do `groc` abandonado por `docco`, overrides de transitivas vulneráveis (`diff`, `serialize-javascript`).
+- **Correção de bugs**: `ecb`/`ecbInv` referenciavam `inBlocks` indefinido (resíduo do refactor de 2019 que renomeou para `partition`) e usavam `encrypt` no lugar de `decrypt` — corrigido e coberto por testes.
+- **Hardening**: validação em `pksc7Inv` (fechando a porta documentada em 2019), `xor` exigindo tamanhos iguais, `expandKey` rejeitando chaves de tamanho errado.
+- **Auditoria criptográfica**: report formal listando padding oracle, ausência de MAC, exposição via cache-timing, reuso de IV.
+- **Refactor funcional agressivo**: introdução de `scanl`/`mapAccumL` (substituindo o `chainBlocks` de 2019), combinadores clássicos (head/tail/init/last/middle, compose, dup, flip), currying total das APIs.
+- **TypeScript com tipos estreitos**: conversão completa src/ + test/, `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`.
+- **Port em Rust** (`rust/`): mesma estrutura, com const generics dando garantias de tamanho em compile-time. Estendido para AES-128/192/256 via `Aes<const NRK: usize>`.
+- **AES-GCM** em ambas linguagens: fechando o gap "sem autenticação" do report — implementação completa de GHASH em GF(2^128), CTR mode, validação de tag em tempo constante. Verificado contra todos os vetores NIST SP 800-38D.
+- **Bridge WASM** (`wasm-bindgen`): Rust compilado para WebAssembly, consumível pelo TS. Testes de cross-language equivalence.
+- **CI** (`.github/workflows/ci.yml`): matriz Node 20/22, Rust stable com fmt + clippy + test, build WASM separado.
+- **Benchmarks**: criterion em Rust, harness próprio em TS comparando lado-a-lado TS puro × Rust→WASM × `node:crypto` (AES-NI). Resultado: a versão didática é ~3000× mais lenta que AES-NI, mas o salto TS→WASM já recupera 130×.
+- **Esta aula** — toda a seção abaixo é deste período.
+
+Para reler a história em ordem: `git log pre-claude..HEAD`. Os commits ficam atribuídos como `Co-Authored-By: Claude` quando aplicável.
+
+---
+
 ### Comandos
 
 ```bash
@@ -578,6 +611,7 @@ Originais e canônicos:
 - **Daemen & Rijmen — "The Design of Rijndael"** — livro dos autores. Explica *por que* cada decisão foi tomada.
 
 Pedagógicos:
+- **[Stallings — "Cryptography and Network Security: Principles and Practice"](https://g.co/kgs/UUEmv7)** — o livro pelo qual esta implementação foi originalmente estudada em 2016.
 - **Cryptography Engineering** (Ferguson, Schneier, Kohno).
 - **[Boneh & Shoup — "A Graduate Course in Applied Cryptography"](https://toc.cryptobook.us/)** — gratuito online.
 - **[movable-type.co.uk/scripts/aes.html](http://www.movable-type.co.uk/scripts/aes.html)** — walkthrough visual.
