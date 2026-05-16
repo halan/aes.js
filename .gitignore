@@ -3,3 +3,5 @@ docs
 *.tsbuildinfo
 rust/target
 rust/Cargo.lock
+rust/pkg-node
+rust/pkg-web

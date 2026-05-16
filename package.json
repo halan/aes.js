@@ -16,7 +16,8 @@
   "scripts": {
     "doc": "docco src/*.ts src/**/*.ts src/**/**/*.ts",
     "test": "mocha",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "build:wasm": "wasm-pack build rust --target nodejs --out-dir pkg-node -- --features wasm"
   },
   "author": "Halan Pinheiro",
   "license": "ISC",

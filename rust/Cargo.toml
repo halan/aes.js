@@ -6,6 +6,20 @@ description = "Didactic AES-128 implementation in Rust — companion to ../src (
 license = "ISC"
 publish = false
 
+[lib]
+# `cdylib` é necessário para gerar o `.wasm`; `rlib` mantém o uso normal
+# como crate Rust (testes, dependentes locais, etc.).
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# Por padrão a crate é Rust puro, sem deps. A feature `wasm` ativa as
+# bindings via `wasm-bindgen` para consumo a partir do TS/JS.
+default = []
+wasm = ["dep:wasm-bindgen"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2", optional = true }
+
 [lints.rust]
 unsafe_code = "forbid"
 
